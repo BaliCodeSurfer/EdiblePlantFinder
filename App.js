@@ -150,6 +150,10 @@ export default function App() {
           {result ? (
             <View style={styles.resultCard}>
               <Text style={styles.plantName}>
+                {result.classification.suggestions[0].details?.common_names?.[0]
+                  ?? result.classification.suggestions[0].name}
+              </Text>
+              <Text style={styles.scientificName}>
                 {result.classification.suggestions[0].name}
               </Text>
               <Text style={styles.probability}>
@@ -234,6 +238,7 @@ const styles = StyleSheet.create({
   previewImage: { width: '100%', height: 400, borderRadius: 16, marginBottom: 20 },
   resultCard: { width: '100%', backgroundColor: '#222', borderRadius: 16, padding: 20, marginBottom: 20 },
   plantName: { fontSize: 22, fontWeight: 'bold', color: '#fff', textAlign: 'center' },
+  scientificName: { fontSize: 13, fontStyle: 'italic', color: '#bbb', textAlign: 'center', marginTop: 2 },
   probability: { fontSize: 16, color: '#aaa', textAlign: 'center', marginBottom: 15 },
   edibleFlag: {
     backgroundColor: '#00c853',
@@ -253,13 +258,15 @@ const styles = StyleSheet.create({
   },
   notEdibleText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
   toxicity: { color: '#fff', marginTop: 5 },
-  actions: { flexDirection: 'row', justifyContent: 'space-around', width: '100%', marginTop: 10 },
+  actions: { width: '100%', marginTop: 10 },
   button: {
     backgroundColor: '#1e88e5',
     paddingVertical: 14,
     paddingHorizontal: 24,
     borderRadius: 30,
     marginVertical: 8,
+    alignSelf: 'stretch',
+    alignItems: 'center',
   },
   analyzeButton: { backgroundColor: '#00c853' },
   buttonText: { color: '#fff', fontSize: 18, fontWeight: '600' },
