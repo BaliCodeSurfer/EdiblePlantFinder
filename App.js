@@ -4,22 +4,18 @@ import {
   Text,
   TouchableOpacity,
   Image,
-  StyleSheet,
   ScrollView,
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { CameraView, useCameraPermissions } from 'expo-camera';
+import { useCameraPermissions } from 'expo-camera';
 import { StatusBar } from 'expo-status-bar';
+import { Ionicons } from '@expo/vector-icons';
 
-//API key can be stolen from the client easily
-/*Instead of calling https://api.plant.id/v2/identify (or v3) directly from the user's phone/browser:
-
-Your mobile/web app sends the photo(s) to your server.
-Your server adds the secret API key and forwards the request to Kindwise.
-Your server receives the result and sends it back to the user.
-*/
-const API_KEY = 'rjgibOFK8LZgUbeVOqbabGfFxKOjnDRrYqo371YiRGnrJX2zkT'; // ← Get at https://www.kindwise.com/plant-id
+import { styles } from './styles';
+import { hasApiKey, identifyPlant } from './services/plantId';
+import { CameraScreen } from './components/CameraScreen';
+import { ResultCard } from './components/ResultCard';
 
 export default function App() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -32,10 +28,10 @@ export default function App() {
   const [result, setResult] = useState(null);
 
   useEffect(() => {
-    if (!API_KEY) {
+    if (!hasApiKey()) {
       Alert.alert(
         'API Key Missing',
-        'Please sign up at https://www.kindwise.com/plant-id and replace YOUR_PLANT_ID_API_KEY_HERE'
+        'Please sign up at https://www.kindwise.com/plant-id and set your API key in services/plantId.js'
       );
     }
   }, []);
@@ -64,7 +60,7 @@ export default function App() {
       });
       setPhotoUri(photo.uri);
       setBase64Image(photo.base64);
-      setResult(null);
+      setResult(null); // clear the data about edibility
     } catch (error) {
       Alert.alert('Error', 'Failed to take picture');
     }
@@ -75,43 +71,14 @@ export default function App() {
 
     setLoading(true);
     try {
-      const response = await fetch(
-        'https://api.plant.id/v3/identification?details=common_names,edible_parts,toxicity,description,url',
-        {
-          method: 'POST',
-          headers: {
-            'Api-Key': API_KEY,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            images: [`data:image/jpeg;base64,${base64Image}`],
-            classification_level: 'all',
-
-          }),
-        }
-      );
-    
-      // === NEW DEBUG CODE ===
-      const responseText = await response.text();   // Read as text first
-      console.log("Status:", response.status);
-      console.log("Raw response from Plant.id:", responseText);
-    
-      if (!response.ok) {
-        throw new Error(`Plant.id API error ${response.status}: ${responseText}`);
-      }
-    
-      const data = JSON.parse(responseText);
-      console.log("Parsed data:", data);
-
-      // Plant.id v3 nests classification under `result`
-      if (!data.result?.classification?.suggestions?.length) {
+      const plantResult = await identifyPlant(base64Image);
+      if (!plantResult?.classification?.suggestions?.length) {
         Alert.alert('No matches', 'Could not identify a plant in this photo.');
         return;
       }
-
-      setResult(data.result);
+      setResult(plantResult);
     } catch (error) {
-      console.error("Full error:", error);
+      console.error('Full error:', error);
       Alert.alert('Analysis failed', error.message ?? 'Unknown error');
     } finally {
       setLoading(false);
@@ -129,61 +96,17 @@ export default function App() {
       <StatusBar style="light" />
 
       {!photoUri ? (
-        // CAMERA SCREEN
-        <CameraView
-          ref={cameraRef}
-          style={styles.camera}
-          onCameraReady={() => setCameraReady(true)}
-        >
-          <View style={styles.overlay}>
-            <Text style={styles.title}>Edible Plant Finder (v3)</Text>
-            <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
-              <View style={styles.captureInner} />
-            </TouchableOpacity>
-          </View>
-        </CameraView>
+        <CameraScreen
+          cameraRef={cameraRef}
+          onReady={() => setCameraReady(true)}
+          onCapture={takePicture}
+        />
       ) : (
-        // PREVIEW + RESULTS SCREEN
         <ScrollView style={styles.previewContainer} contentContainerStyle={styles.scrollContent}>
           <Image source={{ uri: photoUri }} style={styles.previewImage} resizeMode="contain" />
 
           {result ? (
-            <View style={styles.resultCard}>
-              <Text style={styles.plantName}>
-                {result.classification.suggestions[0].details?.common_names?.[0]
-                  ?? result.classification.suggestions[0].name}
-              </Text>
-              <Text style={styles.scientificName}>
-                {result.classification.suggestions[0].name}
-              </Text>
-              <Text style={styles.probability}>
-                Confidence: {(result.classification.suggestions[0].probability * 100).toFixed(1)}%
-              </Text>
-
-              {/* EDIBILITY FLAG */}
-              {result.classification.suggestions[0].details?.edible_parts &&
-              result.classification.suggestions[0].details.edible_parts.length > 0 ? (
-                <View style={styles.edibleFlag}>
-                  <Text style={styles.edibleText}>✅ EDIBLE PLANT DETECTED</Text>
-                  <Text style={styles.edibleParts}>
-                    Edible parts: {result.classification.suggestions[0].details.edible_parts.join(', ')}
-                  </Text>
-                </View>
-              ) : (
-                <View style={styles.notEdibleFlag}>
-                  <Text style={styles.notEdibleText}>⚠️ No edible parts found (or unknown)</Text>
-                  {result.classification.suggestions[0].details?.toxicity && (
-                    <Text style={styles.toxicity}>
-                      Toxicity: {result.classification.suggestions[0].details.toxicity}
-                    </Text>
-                  )}
-                </View>
-              )}
-
-              <TouchableOpacity style={styles.button} onPress={reset}>
-                <Text style={styles.buttonText}>Take Another Photo</Text>
-              </TouchableOpacity>
-            </View>
+            <ResultCard result={result} onRetake={reset} />
           ) : (
             <View style={styles.actions}>
               <TouchableOpacity
@@ -194,17 +117,20 @@ export default function App() {
                 {loading ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
-                  <Text style={styles.buttonText}>Analyze for Edible Plants</Text>
+                  <Text style={styles.buttonText}>Analyze Photo</Text>
                 )}
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.button} onPress={reset}>
-                <Text style={styles.buttonText}>Retake Photo</Text>
+              <TouchableOpacity
+                style={[styles.button, styles.iconButton]}
+                onPress={reset}
+                accessibilityLabel="Retake photo"
+              >
+                <Ionicons name="camera" size={28} color="#fff" />
               </TouchableOpacity>
             </View>
           )}
 
-          {/* Safety disclaimer */}
           <Text style={styles.disclaimer}>
             ⚠️ SAFETY FIRST: This app is for informational purposes only. Never eat wild plants without expert confirmation.
           </Text>
@@ -213,69 +139,3 @@ export default function App() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000' },
-  camera: { flex: 1 },
-  overlay: { flex: 1, justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 50 },
-  title: { color: '#fff', fontSize: 24, fontWeight: 'bold', marginBottom: 30 },
-  captureButton: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  captureInner: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#ff0000',
-  },
-  previewContainer: { flex: 1, backgroundColor: '#111' },
-  scrollContent: { padding: 20, alignItems: 'center' },
-  previewImage: { width: '100%', height: 400, borderRadius: 16, marginBottom: 20 },
-  resultCard: { width: '100%', backgroundColor: '#222', borderRadius: 16, padding: 20, marginBottom: 20 },
-  plantName: { fontSize: 22, fontWeight: 'bold', color: '#fff', textAlign: 'center' },
-  scientificName: { fontSize: 13, fontStyle: 'italic', color: '#bbb', textAlign: 'center', marginTop: 2 },
-  probability: { fontSize: 16, color: '#aaa', textAlign: 'center', marginBottom: 15 },
-  edibleFlag: {
-    backgroundColor: '#00c853',
-    padding: 15,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginVertical: 10,
-  },
-  edibleText: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
-  edibleParts: { color: '#fff', marginTop: 8, textAlign: 'center' },
-  notEdibleFlag: {
-    backgroundColor: '#d32f2f',
-    padding: 15,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginVertical: 10,
-  },
-  notEdibleText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
-  toxicity: { color: '#fff', marginTop: 5 },
-  actions: { width: '100%', marginTop: 10 },
-  button: {
-    backgroundColor: '#1e88e5',
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 30,
-    marginVertical: 8,
-    alignSelf: 'stretch',
-    alignItems: 'center',
-  },
-  analyzeButton: { backgroundColor: '#00c853' },
-  buttonText: { color: '#fff', fontSize: 18, fontWeight: '600' },
-  disclaimer: {
-    fontSize: 13,
-    color: '#666',
-    textAlign: 'center',
-    marginTop: 20,
-    lineHeight: 18,
-  },
-  message: { color: '#fff', fontSize: 18, textAlign: 'center', margin: 40 },
-});
