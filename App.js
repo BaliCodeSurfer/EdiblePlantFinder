@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -13,7 +13,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 
 import { styles } from './styles';
-import { hasApiKey, identifyPlant } from './services/plantId';
+import { identifyPlant } from './services/plantId';
 import { CameraScreen } from './components/CameraScreen';
 import { ResultCard } from './components/ResultCard';
 
@@ -27,14 +27,6 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
 
-  useEffect(() => {
-    if (!hasApiKey()) {
-      Alert.alert(
-        'API Key Missing',
-        'Please sign up at https://www.kindwise.com/plant-id and set your API key in services/plantId.js'
-      );
-    }
-  }, []);
 
   if (!permission) {
     return <View style={styles.container}><Text>Requesting camera permission...</Text></View>;
