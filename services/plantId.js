@@ -1,4 +1,4 @@
-const SERVER_URL = 'http://localhost:8000';
+const SERVER_URL = 'https://plant-id-proxy.onrender.com';
 
 export async function identifyPlant(base64Image) {
   const response = await fetch(`${SERVER_URL}/identify`, {
