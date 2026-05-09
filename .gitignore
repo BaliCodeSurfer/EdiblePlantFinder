@@ -1,41 +1,77 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+# =====================================
+# Environment Secrets (MOST IMPORTANT)
+# =====================================
+.env
+.env*.local
+.env*.development
+.env*.production
+.env*.staging
 
-# dependencies
+# ======================
+# Dependencies & Build
+# ======================
 node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+*.log
 
-# Expo
+# ======================
+# React Native / Expo
+# ======================
 .expo/
 dist/
 web-build/
 expo-env.d.ts
+.metro-health-check*
 
-# Native
+# ======================
+# Native iOS
+# ======================
+ios/Pods/
+ios/build/
+ios/.xcode.env.local
+**/*.pbxuser
+**/*.perspectivev3
+**/*.xccheckout
+**/*.moved-aside
+**/*.xcuserstate
+**/*.xcscheme
+
+# ======================
+# Native Android
+# ======================
+android/build/
+android/app/build/
+android/.gradle/
+android/local.properties
+android/*.iml
+android/.idea
 .kotlin/
+.cxx/
+
+# ======================
+# Misc
+# ======================
+.DS_Store
+*.pem
 *.orig.*
 *.jks
 *.p8
 *.p12
 *.key
 *.mobileprovision
+*.keystore
+!debug.keystore
 
-# Metro
-.metro-health-check*
-
-# debug
-npm-debug.*
-yarn-debug.*
-yarn-error.*
-
-# macOS
-.DS_Store
-*.pem
-
-# local env files
-.env*.local
-
-# typescript
+# Temporary files
+.tmp/
+.tmp-*
+coverage/
 *.tsbuildinfo
 
-# generated native folders
-/ios
-/android
+# Fastlane
+**/fastlane/report.xml
+**/fastlane/Preview.html
+**/fastlane/screenshots
+**/fastlane/test_output
