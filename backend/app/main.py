@@ -1,7 +1,7 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, Request, status
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -61,22 +61,21 @@ async def create_session():
 
 @app.post("/identify", response_model=IdentifyResponse, tags=["identification"])
 async def identify(req: IdentifyRequest, token: str = Depends(get_current_token)):
-    try:
-        result = await identify_plant(req.image_base64)
-        return IdentifyResponse(result=result)
-    except HTTPException:
-        raise
-    except Exception as exc:
-        logger.exception("Unexpected error during identification")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error",
-        ) from exc
+    result = await identify_plant(req.image_base64)
+    return IdentifyResponse(result=result)
 
 
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request, exc: HTTPException):
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """Log all unhandled exceptions and return a safe response to the client."""
+    if isinstance(exc, HTTPException):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.detail},
+        )
+
+    logger.exception("Unhandled exception on %s", request.url.path)
     return JSONResponse(
-        status_code=exc.status_code,
-        content={"detail": exc.detail},
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={"detail": "Internal server error"},
     )
