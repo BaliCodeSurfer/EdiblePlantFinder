@@ -1,13 +1,28 @@
+# Render Blueprint (render.yaml)
+# This file lets Render automatically create or update your service
+# from code instead of manual dashboard clicks.
+#
+# It is especially useful for:
+# - Version-controlling your infrastructure
+# - Making the deployment fully reproducible
+# - Adding more services later (cron jobs, databases, etc.)
+
 services:
-  - type: web
-    name: plant_id_proxy
-    env: python
-    region: oregon
-    plan: free
+  - type: web                     # Web service (receives HTTP traffic)
+    name: plant_id_proxy          # Name shown in the Render dashboard
+    env: python                   # Python runtime
+    region: oregon                # Deployment region
+    plan: free                    # Free tier (auto-sleeps after 15 min)
+
+    # Commands Render runs during deploy
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+
+    # Environment variables
+    # We use sync: false for secrets so the actual values are never
+    # stored in this file (they live only in the Render dashboard).
     envVars:
       - key: PLANT_ID_API_KEY
-        sync: false
+        sync: false               # Secret – value managed in dashboard
       - key: JWT_SECRET_KEY
-        sync: false
+        sync: false               # Secret – value managed in dashboard
