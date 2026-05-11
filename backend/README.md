@@ -65,15 +65,29 @@ Free tier sleeps after 15 min of inactivity — fine for a personal/portfolio ap
 
 ## Updating the React Native client
 
-Point `services/plantId.js` at your new endpoint:
+Point `services/plantId.js` at your new endpoint. The client now obtains a JWT automatically via the public `/session` endpoint on first use:
 
 ```js
 const SERVER_URL = "https://your-render-service.onrender.com";
 
+let cachedToken = null;
+
+async function ensureToken() {
+  if (cachedToken) return;
+  const res = await fetch(`${SERVER_URL}/session`, { method: "POST" });
+  if (!res.ok) throw new Error(await res.text());
+  const data = await res.json();
+  cachedToken = data.access_token;
+}
+
 export async function identifyPlant(base64Image) {
+  await ensureToken();
   const res = await fetch(`${SERVER_URL}/identify`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${cachedToken}`,
+    },
     body: JSON.stringify({ image_base64: base64Image }),
   });
   if (!res.ok) throw new Error(await res.text());
@@ -86,9 +100,10 @@ Remove the old hardcoded key and the `hasApiKey` check.
 
 ## Security notes
 
-- The key never leaves the server.
-- Consider adding a simple shared secret header or JWT if you want to restrict who can call the proxy.
-- Rate-limit or add usage quotas in production to protect your Plant.id credits.
+- The Plant.id API key never leaves the server.
+- Clients obtain a JWT by calling the public `/session` endpoint (no secret required).
+- The JWT is signed with `JWT_SECRET_KEY` and expires after ~30 days (configurable).
+- Rate-limit the `/session` and `/identify` endpoints in production to protect your Plant.id quota.
 - In production, set `CORS_ORIGINS` to your actual app's origin(s) instead of `*`.
 
 ## Next steps for a stronger portfolio piece

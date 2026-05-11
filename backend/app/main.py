@@ -1,10 +1,12 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, status
+from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from app.auth import TokenResponse, create_access_token, get_current_token
 from app.config import Settings
 from app.schemas import IdentifyRequest, IdentifyResponse
 from app.services import identify_plant
@@ -20,6 +22,8 @@ async def lifespan(app: FastAPI):
     logger.info("Starting Plant ID proxy service")
     if not settings.plant_id_api_key:
         logger.warning("PLANT_ID_API_KEY is not set")
+    if not settings.jwt_secret_key:
+        logger.warning("JWT_SECRET_KEY is not set")
     yield
     logger.info("Shutting down Plant ID proxy service")
 
@@ -45,8 +49,18 @@ async def health_check():
     return {"status": "ok"}
 
 
+@app.post("/session", response_model=TokenResponse, tags=["auth"])
+async def create_session():
+    """
+    Public endpoint that issues a JWT for anonymous clients.
+    In production this would include rate limiting, device fingerprinting, etc.
+    """
+    token = create_access_token(subject="anonymous")
+    return TokenResponse(access_token=token)
+
+
 @app.post("/identify", response_model=IdentifyResponse, tags=["identification"])
-async def identify(req: IdentifyRequest):
+async def identify(req: IdentifyRequest, token: str = Depends(get_current_token)):
     try:
         result = await identify_plant(req.image_base64)
         return IdentifyResponse(result=result)

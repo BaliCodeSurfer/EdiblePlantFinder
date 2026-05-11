@@ -11,6 +11,10 @@ class Settings(BaseSettings):
     )
     cors_origins: str = "*"  # comma-separated in production
 
+    jwt_secret_key: str
+    jwt_algorithm: str = "HS256"
+    jwt_expire_minutes: int = 60 * 24 * 30  # 30 days for demo convenience
+
     @property
     def cors_origin_list(self) -> list[str]:
         if self.cors_origins == "*":
