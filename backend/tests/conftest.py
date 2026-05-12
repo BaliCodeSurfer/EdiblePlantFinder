@@ -12,10 +12,12 @@ from app.main import app
 
 @pytest.fixture
 def client():
-    return TestClient(app)
+    # raise_server_exceptions=False lets us test the global exception handler
+    # and assert on 5xx responses instead of seeing raw exceptions.
+    return TestClient(app, raise_server_exceptions=False)
 
 
 @pytest.fixture
 def mock_identify_plant():
-    with patch("app.services.identify_plant", new_callable=AsyncMock) as mock:
+    with patch("app.main.identify_plant", new_callable=AsyncMock) as mock:
         yield mock

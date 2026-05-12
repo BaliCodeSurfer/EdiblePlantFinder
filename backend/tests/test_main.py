@@ -1,5 +1,7 @@
+import httpx
 import pytest
 from fastapi.testclient import TestClient
+from unittest.mock import AsyncMock, patch
 
 from app.main import app
 
@@ -37,7 +39,12 @@ def test_identify_success(client, mock_identify_plant):
 
 
 def test_identify_unauthorized(client):
-    response = client.post("/identify", json={"image_base64": "a" * 200})
+    # Send an invalid token to trigger the JWT verification error (401)
+    response = client.post(
+        "/identify",
+        json={"image_base64": "a" * 200},
+        headers={"Authorization": "Bearer invalid-token"},
+    )
     assert response.status_code == 401
 
 
@@ -63,3 +70,81 @@ def test_identify_server_error(client, mock_identify_plant):
     )
     assert response.status_code == 500
     assert response.json()["detail"] == "Internal server error"
+
+
+# ---------------------------------------------------------------------------
+# Retry behavior tests (exercise the tenacity decorator in identify_plant)
+# ---------------------------------------------------------------------------
+
+
+def _make_transient_response(status_code: int) -> httpx.Response:
+    """Helper to build an HTTPStatusError that tenacity will treat as retryable."""
+    request = httpx.Request("POST", "https://api.plant.id/v3/identification")
+    response = httpx.Response(status_code, request=request)
+    return httpx.HTTPStatusError("transient error", request=request, response=response)
+
+
+def test_identify_retries_on_transient_error_then_succeeds(client):
+    """Simulates two 503s followed by success on the third attempt."""
+    token = client.post("/session").json()["access_token"]
+    call_count = 0
+
+    async def fake_post(*args, **kwargs):
+        nonlocal call_count
+        call_count += 1
+        if call_count < 3:
+            raise _make_transient_response(503)
+        # Success on 3rd try — use a plain Mock so that .raise_for_status()
+        # and .json() behave like real httpx.Response (synchronous methods).
+        from unittest.mock import Mock
+
+        mock_resp = Mock()
+        mock_resp.raise_for_status.return_value = None
+        mock_resp.json.return_value = {
+            "result": {"classification": {"suggestions": [{"name": "retry_success"}]}}
+        }
+        return mock_resp
+
+    with patch("app.services.httpx.AsyncClient") as mock_client_cls:
+        mock_instance = AsyncMock()
+        mock_client_cls.return_value.__aenter__.return_value = mock_instance
+        # Explicitly make post an AsyncMock with the async side_effect
+        mock_instance.post = AsyncMock(side_effect=fake_post)
+
+        resp = client.post(
+            "/identify",
+            json={"image_base64": "a" * 200},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+    assert resp.status_code == 200
+    assert resp.json()["result"] == {
+        "classification": {"suggestions": [{"name": "retry_success"}]}
+    }
+    assert call_count == 3
+
+
+def test_identify_fails_after_exhausting_retries(client):
+    """All three attempts return 503 → final 500 after retries are exhausted."""
+    token = client.post("/session").json()["access_token"]
+    call_count = 0
+
+    async def always_fail(*args, **kwargs):
+        nonlocal call_count
+        call_count += 1
+        raise _make_transient_response(503)
+
+    with patch("app.services.httpx.AsyncClient") as mock_client_cls:
+        mock_instance = AsyncMock()
+        mock_client_cls.return_value.__aenter__.return_value = mock_instance
+        mock_instance.post = AsyncMock(side_effect=always_fail)
+
+        resp = client.post(
+            "/identify",
+            json={"image_base64": "a" * 200},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+    assert resp.status_code == 500
+    assert resp.json()["detail"] == "Internal server error"
+    assert call_count == 3
