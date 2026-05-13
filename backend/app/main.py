@@ -6,7 +6,6 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
 from app.auth import TokenResponse, create_access_token, get_current_token
@@ -19,8 +18,17 @@ logger = logging.getLogger(__name__)
 
 settings = Settings()
 
+
+def get_client_ip(request: Request) -> str:
+    """Return the real client IP, preferring X-Forwarded-For when present."""
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
 # Rate limiter using slowapi (in-memory by default, no Redis required)
-limiter = Limiter(key_func=get_remote_address)
+limiter = Limiter(key_func=get_client_ip)
 
 
 @asynccontextmanager
