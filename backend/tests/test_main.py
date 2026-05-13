@@ -148,3 +148,51 @@ def test_identify_fails_after_exhausting_retries(client):
     assert resp.status_code == 500
     assert resp.json()["detail"] == "Internal server error"
     assert call_count == 3
+
+
+# ---------------------------------------------------------------------------
+# Rate limiter tests (slowapi)
+# ---------------------------------------------------------------------------
+
+
+def test_identify_rate_limit_exceeded(client):
+    """Exceeding the configured rate limit should return HTTP 429."""
+    token = client.post("/session").json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # The default limit is "10/minute". We send 11 requests from the same IP.
+    responses = []
+    for _ in range(11):
+        resp = client.post(
+            "/identify",
+            json={"image_base64": "a" * 200},
+            headers=headers,
+        )
+        responses.append(resp.status_code)
+
+    # First 10 should not be rate-limited (200 or 500 depending on mocking)
+    assert all(code in (200, 500) for code in responses[:10])
+    # 11th request must be rejected
+    assert responses[10] == 429
+
+
+def test_identify_rate_limit_per_ip(client):
+    """Different IPs should have independent rate limit counters."""
+    token = client.post("/session").json()["access_token"]
+    base_headers = {"Authorization": f"Bearer {token}"}
+
+    # Exhaust limit for IP 1.1.1.1
+    for _ in range(11):
+        client.post(
+            "/identify",
+            json={"image_base64": "a" * 200},
+            headers={**base_headers, "X-Forwarded-For": "1.1.1.1"},
+        )
+
+    # IP 2.2.2.2 should still be allowed (different counter)
+    resp = client.post(
+        "/identify",
+        json={"image_base64": "a" * 200},
+        headers={**base_headers, "X-Forwarded-For": "2.2.2.2"},
+    )
+    assert resp.status_code in (200, 500)  # not rate-limited

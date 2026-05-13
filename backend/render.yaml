@@ -26,3 +26,6 @@ services:
         sync: false               # Secret – value managed in dashboard
       - key: JWT_SECRET_KEY
         sync: false               # Secret – value managed in dashboard
+      # Optional: override the default rate limit (e.g. "100/hour")
+      - key: RATE_LIMIT
+        value: "10/minute"

@@ -15,6 +15,10 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 60 * 24 * 30  # 30 days for demo convenience
 
+    # Rate limit string in the format understood by slowapi / limits library
+    # Examples: "10/minute", "100/hour", "5/second"
+    rate_limit: str = "10/minute"
+
     @property
     def cors_origin_list(self) -> list[str]:
         if self.cors_origins == "*":
