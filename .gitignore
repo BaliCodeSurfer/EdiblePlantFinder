@@ -79,3 +79,8 @@ coverage/
 __pycache__/
 *.pyc
 *.pyo
+
+# Docker (keep these files tracked - they are part of the deployment)
+!backend/Dockerfile
+!backend/.dockerignore
+!backend/docker-compose.yml
