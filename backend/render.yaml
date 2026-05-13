@@ -10,13 +10,12 @@
 services:
   - type: web                     # Web service (receives HTTP traffic)
     name: plant_id_proxy          # Name shown in the Render dashboard
-    env: python                   # Python runtime
+    runtime: docker               # Use Docker instead of native Python builder
     region: oregon                # Deployment region
     plan: free                    # Free tier (auto-sleeps after 15 min)
 
-    # Commands Render runs during deploy
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    # Path to the Dockerfile inside the repo
+    dockerfilePath: backend/Dockerfile
 
     # Environment variables
     # We use sync: false for secrets so the actual values are never
