@@ -92,4 +92,4 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ---
 
-Built as a portfolio project to demonstrate senior-level full-stack engineering skills.
+Built as a portfolio and passion project to demonstrate senior-level full-stack engineering skills.
