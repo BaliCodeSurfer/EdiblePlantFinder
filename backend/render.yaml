@@ -1,30 +1,33 @@
 # Render Blueprint (render.yaml)
-# This file lets Render automatically create or update your service
-# from code instead of manual dashboard clicks.
 #
-# It is especially useful for:
-# - Version-controlling your infrastructure
-# - Making the deployment fully reproducible
-# - Adding more services later (cron jobs, databases, etc.)
+# This file tells Render how to build and run your service.
+# It is the single source of truth for infrastructure.
+#
+# After pushing this file, Render will:
+#   1. Build a Docker image using backend/Dockerfile
+#   2. Run the resulting container
+#   3. Inject the environment variables listed below
 
 services:
-  - type: web                     # Web service (receives HTTP traffic)
-    name: plant_id_proxy          # Name shown in the Render dashboard
-    runtime: docker               # Use Docker instead of native Python builder
-    region: oregon                # Deployment region
-    plan: free                    # Free tier (auto-sleeps after 15 min)
+  - type: web
+    name: plant_id_proxy
+    runtime: docker                    # Use Docker (not the native Python builder)
+    region: oregon
+    plan: free
 
-    # Path to the Dockerfile inside the repo
+    # Path to the Dockerfile relative to the repository root
     dockerfilePath: backend/Dockerfile
 
+    # IMPORTANT: Use the backend/ folder as the Docker build context
+    # so that COPY requirements.txt . and COPY . . work correctly.
+    dockerContext: backend
+
     # Environment variables
-    # We use sync: false for secrets so the actual values are never
-    # stored in this file (they live only in the Render dashboard).
+    # Secrets are marked with sync: false so their values live only in the dashboard
     envVars:
       - key: PLANT_ID_API_KEY
-        sync: false               # Secret – value managed in dashboard
+        sync: false                    # Secret – set in Render dashboard
       - key: JWT_SECRET_KEY
-        sync: false               # Secret – value managed in dashboard
-      # Optional: override the default rate limit (e.g. "100/hour")
+        sync: false                    # Secret – set in Render dashboard
       - key: RATE_LIMIT
-        value: "10/minute"
+        value: "10/minute"             # Default rate limit (can be overridden)
