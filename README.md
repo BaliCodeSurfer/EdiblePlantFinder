@@ -12,11 +12,11 @@ The core technical challenge was calling a paid third-party machine learning API
 
 The backend includes 10 focused tests covering authentication, validation, retry logic, and rate limiting. The entire stack can be run locally with a single `docker compose up --build` command.
 
-Architecture provides security, resilience, observability, testing, and modern deployment practices 
+This project demonstrates production-oriented thinking around security, resilience, observability, testing, and modern deployment practices — skills I bring to senior full-stack engineering roles.
 
 ## Tech Stack
 
-- **Mobile**: React Native (Expo)
+- **Mobile**: React Native (Expo) with **TypeScript**
 - **Backend**: FastAPI, Pydantic, `httpx`, `tenacity`, `slowapi`
 - **Infrastructure**: Docker, `docker-compose`, Render Blueprint (`render.yaml`)
 
@@ -61,21 +61,23 @@ Scan the QR code with Expo Go (iOS/Android) or run on a simulator.
 
 ```
 EdiblePlantFinder/
-├── App.js                 # Main React Native entry point
-├── services/plantId.js    # API client for the backend
-├── components/            # CameraScreen, ResultCard
-├── backend/               # FastAPI proxy service
+├── App.tsx                    # Main React Native entry point (TypeScript)
+├── types.ts                   # Shared TypeScript interfaces
+├── services/plantId.ts        # API client for the backend
+├── components/                # CameraScreen, ResultCard (TypeScript)
+├── styles.ts                  # StyleSheet definitions
+├── backend/                   # FastAPI proxy service
 │   ├── app/
-│   │   ├── main.py        # FastAPI app + routes
-│   │   ├── services.py    # Plant.id integration + retry logic
-│   │   ├── auth.py        # JWT session handling
-│   │   ├── config.py      # 12-factor settings
-│   │   └── schemas.py     # Pydantic models
+│   │   ├── main.py            # FastAPI app + routes
+│   │   ├── services.py        # Plant.id integration + retry logic
+│   │   ├── auth.py            # JWT session handling
+│   │   ├── config.py          # 12-factor settings
+│   │   └── schemas.py         # Pydantic models
 │   ├── Dockerfile
 │   ├── docker-compose.yml
-│   ├── render.yaml        # Render Blueprint
-│   └── README.md          # Detailed backend documentation
-└── README.md              # This file
+│   ├── render.yaml            # Render Blueprint
+│   └── README.md              # Detailed backend documentation
+└── README.md                  # This file
 ```
 
 ## Backend Documentation
@@ -90,4 +92,4 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ---
 
-Built as a passion project and a demo
+Built as a portfolio project to demonstrate senior-level full-stack engineering skills.

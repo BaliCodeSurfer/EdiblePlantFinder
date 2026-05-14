@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { useCameraPermissions } from 'expo-camera';
+import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -16,17 +16,17 @@ import { styles } from './styles';
 import { identifyPlant } from './services/plantId';
 import { CameraScreen } from './components/CameraScreen';
 import { ResultCard } from './components/ResultCard';
+import { PlantIdentificationResult } from './types';
 
 export default function App() {
   const [permission, requestPermission] = useCameraPermissions();
   const [cameraReady, setCameraReady] = useState(false);
-  const cameraRef = useRef(null);
+  const [facing, setFacing] = useState<CameraType>('back');
 
-  const [photoUri, setPhotoUri] = useState(null);
-  const [base64Image, setBase64Image] = useState(null);
+  const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [base64Image, setBase64Image] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
-
+  const [result, setResult] = useState<PlantIdentificationResult | null>(null);
 
   if (!permission) {
     return <View style={styles.container}><Text>Requesting camera permission...</Text></View>;
@@ -43,17 +43,13 @@ export default function App() {
     );
   }
 
-  const takePicture = async () => {
-    if (!cameraRef.current || !cameraReady) return;
+  const takePicture = async (photo: any) => {
     try {
-      const photo = await cameraRef.current.takePictureAsync({
-        quality: 0.85,
-        base64: true,
-      });
-      setPhotoUri(photo.uri);
-      setBase64Image(photo.base64);
-      setResult(null); // clear the data about edibility
+      setPhotoUri(photo.uri ?? null);
+      setBase64Image(photo.base64 ?? null);
+      setResult(null);
     } catch (error) {
+      console.error('Camera error:', error);
       Alert.alert('Error', 'Failed to take picture');
     }
   };
@@ -69,7 +65,7 @@ export default function App() {
         return;
       }
       setResult(plantResult);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Full error:', error);
       Alert.alert('Analysis failed', error.message ?? 'Unknown error');
     } finally {
@@ -83,15 +79,20 @@ export default function App() {
     setResult(null);
   };
 
+  const toggleCameraFacing = () => {
+    setFacing(current => (current === 'back' ? 'front' : 'back'));
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
 
       {!photoUri ? (
         <CameraScreen
-          cameraRef={cameraRef}
-          onReady={() => setCameraReady(true)}
-          onCapture={takePicture}
+          facing={facing}
+          onCameraReady={() => setCameraReady(true)}
+          onPictureTaken={takePicture}
+          onFlipCamera={toggleCameraFacing}
         />
       ) : (
         <ScrollView style={styles.previewContainer} contentContainerStyle={styles.scrollContent}>

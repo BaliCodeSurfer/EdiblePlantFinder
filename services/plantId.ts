@@ -1,8 +1,10 @@
+import { PlantIdentificationResult } from '../types';
+
 const SERVER_URL = 'https://plant-id-proxy.onrender.com';
 
-let cachedToken = null;
+let cachedToken: string | null = null;
 
-async function ensureToken() {
+async function ensureToken(): Promise<void> {
   if (cachedToken) return;
 
   const response = await fetch(`${SERVER_URL}/session`, {
@@ -19,7 +21,9 @@ async function ensureToken() {
   cachedToken = data.access_token;
 }
 
-export async function identifyPlant(base64Image) {
+export async function identifyPlant(
+  base64Image: string
+): Promise<PlantIdentificationResult | null> {
   await ensureToken();
 
   const response = await fetch(`${SERVER_URL}/identify`, {
