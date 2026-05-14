@@ -13,8 +13,32 @@ The React Native app must never contain the secret key. This service accepts a b
 - `pydantic-settings` for clean 12-factor configuration
 - Structured logging and lifespan events
 - CORS middleware ready for both local dev and production origins
+- `tenacity` for retry with exponential backoff on transient failures
+- `slowapi` for in-memory per-IP rate limiting (no Redis required)
+- Docker + `docker-compose` for reproducible local development
+- Render Blueprint (`render.yaml`) for Infrastructure-as-Code deployment
 
-## Local development
+## Local development (recommended)
+
+The easiest way to run everything locally is with Docker Compose:
+
+```bash
+cd backend
+
+# 1. Create your .env file
+cp .env.example .env
+# Edit .env and add your PLANT_ID_API_KEY and JWT_SECRET_KEY
+
+# 2. Start the service
+docker compose up --build
+```
+
+The server runs at http://localhost:8000.
+
+Interactive docs: http://localhost:8000/docs  
+Health check: http://localhost:8000/health
+
+### Alternative: Run without Docker
 
 ```bash
 cd backend
@@ -24,48 +48,51 @@ pip install -r requirements.txt
 
 # copy and fill the key
 cp .env.example .env
-# edit .env and paste your PLANT_ID_API_KEY
+# edit .env and add your keys
 
 uvicorn app.main:app --reload
 ```
 
-The server runs at http://localhost:8000.
-
-Interactive docs: http://localhost:8000/docs
-
-Health check: http://localhost:8000/health
-
 ## Environment variables
 
-| Variable            | Required | Default | Description |
-|---------------------|----------|---------|-------------|
-| `PLANT_ID_API_KEY`  | yes      | —       | Your Kindwise Plant.id key |
-| `PLANT_ID_URL`      | no       | full v3 URL with details | Override if you need different fields |
-| `CORS_ORIGINS`      | no       | `*`     | Comma-separated list of allowed origins (use your production domain in prod) |
+| Variable              | Required | Default       | Description |
+|-----------------------|----------|---------------|-------------|
+| `PLANT_ID_API_KEY`    | yes      | —             | Your Kindwise Plant.id key |
+| `JWT_SECRET_KEY`      | yes      | —             | Secret used to sign session JWTs |
+| `PLANT_ID_URL`        | no       | full v3 URL   | Override if you need different fields |
+| `CORS_ORIGINS`        | no       | `*`           | Comma-separated list of allowed origins |
+| `RATE_LIMIT`          | no       | `10/minute`   | Rate limit string (e.g. `100/hour`, `5/second`) |
 
-## Production deployment (cheap & simple)
+## Production deployment
 
-### Render.com (recommended free tier)
+### Render.com (recommended)
 
-1. Push this folder to a GitHub repo (or the whole monorepo with a `backend/` subdir).
-2. Create a new Web Service on Render.
-3. Settings:
-   - Root directory: `backend`
-   - Build command: `pip install -r requirements.txt`
-   - Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-4. Add the `PLANT_ID_API_KEY` environment variable in the dashboard.
-5. Deploy. You get a public HTTPS URL automatically.
+This project is deployed using a Render Blueprint (`render.yaml`).
+
+1. Push the repository (including `backend/render.yaml` and `backend/Dockerfile`).
+2. In the Render Dashboard, go to **New → Blueprint** and select your repository.
+3. Render will detect `render.yaml` and create the service with:
+   - Runtime: Docker
+   - Dockerfile: `backend/Dockerfile`
+   - Build context: `backend/`
+4. Add the required secrets (`PLANT_ID_API_KEY` and `JWT_SECRET_KEY`) in the dashboard.
+5. Deploy.
 
 Free tier sleeps after 15 min of inactivity — fine for a personal/portfolio app.
 
-### Alternatives
+### Manual Docker deployment
 
-- Fly.io: `fly launch` then `fly deploy`
-- Railway, Google Cloud Run, etc.
+```bash
+docker build -t plant-id-proxy .
+docker run -p 8000:8000 \
+  -e PLANT_ID_API_KEY=your_key \
+  -e JWT_SECRET_KEY=your_secret \
+  plant-id-proxy
+```
 
 ## Updating the React Native client
 
-Point `services/plantId.js` at your new endpoint. The client now obtains a JWT automatically via the public `/session` endpoint on first use:
+Point `services/plantId.js` at your new endpoint. The client obtains a JWT automatically via the public `/session` endpoint:
 
 ```js
 const SERVER_URL = "https://your-render-service.onrender.com";
@@ -96,22 +123,22 @@ export async function identifyPlant(base64Image) {
 }
 ```
 
-Remove the old hardcoded key and the `hasApiKey` check.
-
 ## Security notes
 
 - The Plant.id API key never leaves the server.
 - Clients obtain a JWT by calling the public `/session` endpoint (no secret required).
 - The JWT is signed with `JWT_SECRET_KEY` and expires after ~30 days (configurable).
-- Rate-limit the `/session` and `/identify` endpoints in production to protect your Plant.id quota.
+- Per-IP rate limiting is applied on `/identify` using `slowapi`.
+- All transient errors (network, 5xx, 429) are retried with exponential backoff.
 - In production, set `CORS_ORIGINS` to your actual app's origin(s) instead of `*`.
 
 ## Next steps for a stronger portfolio piece
 
-- Add request logging / structured JSON logs
-- Persist identification history (SQLite + SQLAlchemy)
+- Persist identification history (SQLite + SQLAlchemy or Postgres)
+- Add GitHub Actions CI (pytest + linting on every PR)
+- Expose rate-limit headers (`X-RateLimit-Remaining`, `Retry-After`)
+- Add React Native component tests (Jest + React Native Testing Library)
+- Add structured JSON logging + request correlation IDs
 - Accept `multipart/form-data` uploads instead of base64
-- Add pytest + GitHub Actions
-- Dockerize with a slim production image
 
-This service is intentionally small but demonstrates clean architecture, proper secret handling, and production concerns — exactly what interviewers look for.
+This service is intentionally small but demonstrates clean architecture, proper secret handling, resilience patterns, testing, and modern infrastructure-as-code practices — exactly what interviewers look for at the senior level.
