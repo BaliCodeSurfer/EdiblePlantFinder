@@ -17,6 +17,7 @@ The React Native app must never contain the secret key. This service accepts a b
 - `slowapi` for in-memory per-IP rate limiting (no Redis required)
 - Docker + `docker-compose` for reproducible local development
 - Render Blueprint (`render.yaml`) for Infrastructure-as-Code deployment
+- Pytest for testing
 
 ## Local development (recommended)
 
