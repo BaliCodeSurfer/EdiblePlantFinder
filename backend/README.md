@@ -138,7 +138,6 @@ export async function identifyPlant(base64Image: string) {
 ## Next steps for a stronger portfolio piece
 
 - Persist identification history (SQLite + SQLAlchemy or Postgres)
-- Add GitHub Actions CI (pytest + linting on every PR)
 - Expose rate-limit headers (`X-RateLimit-Remaining`, `Retry-After`)
 - Add React Native component tests (Jest + React Native Testing Library)
 - Add structured JSON logging + request correlation IDs

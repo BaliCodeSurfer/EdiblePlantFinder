@@ -19,10 +19,21 @@ This project demonstrates production-oriented thinking around security, resilien
 - **Mobile**: React Native (Expo) with **TypeScript**
 - **Backend**: FastAPI, Pydantic, `httpx`, `tenacity`, `slowapi`
 - **Infrastructure**: Docker, `docker-compose`, Render Blueprint (`render.yaml`)
+- **CI/CD**: GitHub Actions (TypeScript type checking + pytest)
 
 ## Live Demo
 
 - Backend API docs: [https://plant-id-proxy.onrender.com/docs](https://plant-id-proxy.onrender.com/docs)
+
+## CI & Testing
+
+This project uses GitHub Actions for continuous integration:
+
+- TypeScript type checking on every push and pull request
+- Python tests (`pytest`) on the backend
+- Manual trigger support via `workflow_dispatch`
+
+You can view the latest CI runs in the **Actions** tab of the repository.
 
 ## Getting Started
 
@@ -61,6 +72,9 @@ Scan the QR code with Expo Go (iOS/Android) or run on a simulator.
 
 ```
 EdiblePlantFinder/
+├── .github/
+│   └── workflows/
+│       └── ci.yml             # GitHub Actions CI (TypeScript + pytest)
 ├── App.tsx                    # Main React Native entry point (TypeScript)
 ├── types.ts                   # Shared TypeScript interfaces
 ├── services/plantId.ts        # API client for the backend
