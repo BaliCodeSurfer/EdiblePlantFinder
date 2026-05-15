@@ -95,12 +95,12 @@ docker run -p 8000:8000 \
 
 Point `services/plantId.ts` at your new endpoint. The client obtains a JWT automatically via the public `/session` endpoint:
 
-```js
+```ts
 const SERVER_URL = "https://your-render-service.onrender.com";
 
-let cachedToken = null;
+let cachedToken: string | null = null;
 
-async function ensureToken() {
+async function ensureToken(): Promise<void> {
   if (cachedToken) return;
   const res = await fetch(`${SERVER_URL}/session`, { method: "POST" });
   if (!res.ok) throw new Error(await res.text());
@@ -108,7 +108,7 @@ async function ensureToken() {
   cachedToken = data.access_token;
 }
 
-export async function identifyPlant(base64Image) {
+export async function identifyPlant(base64Image: string) {
   await ensureToken();
   const res = await fetch(`${SERVER_URL}/identify`, {
     method: "POST",
