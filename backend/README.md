@@ -93,7 +93,7 @@ docker run -p 8000:8000 \
 
 ## Updating the React Native client
 
-Point `services/plantId.js` at your new endpoint. The client obtains a JWT automatically via the public `/session` endpoint:
+Point `services/plantId.ts` at your new endpoint. The client obtains a JWT automatically via the public `/session` endpoint:
 
 ```js
 const SERVER_URL = "https://your-render-service.onrender.com";
@@ -123,6 +123,8 @@ export async function identifyPlant(base64Image) {
   return result;
 }
 ```
+
+> The React Native frontend is written in **TypeScript** (see root `README.md` for details).
 
 ## Security notes
 
