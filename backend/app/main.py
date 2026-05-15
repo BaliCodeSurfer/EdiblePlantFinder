@@ -61,7 +61,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+# Health check endpoint for Docker / Render
 @app.get("/health", tags=["system"])
 async def health_check():
     return {"status": "ok"}
