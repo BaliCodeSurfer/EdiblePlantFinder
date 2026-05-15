@@ -9,8 +9,10 @@ on:
   workflow_dispatch:   # Allows manual triggering from the GitHub Actions tab
 
 env:
+  # Opt into Node.js 24 early to silence the deprecation warning
+  # for actions/checkout and actions/setup-node (Node 20 will be removed in Sept 2026)
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  
+
 jobs:
   frontend:
     name: Frontend (TypeScript)
@@ -18,10 +20,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4.3.0
         with:
           node-version: "20"
           cache: "npm"
