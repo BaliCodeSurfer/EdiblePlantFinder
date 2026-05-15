@@ -36,7 +36,12 @@ export function CameraScreen({ facing, onCameraReady, onPictureTaken, onFlipCame
       onCameraReady={onCameraReady}
     >
       <View style={styles.overlay}>
-        <Text style={styles.title}>Edible Plant Finder</Text>
+        <Text 
+          style={styles.title}
+          accessibilityRole="header"
+        >
+          Edible Plant Finder
+        </Text>
 
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <TouchableOpacity

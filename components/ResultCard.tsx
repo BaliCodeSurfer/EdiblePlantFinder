@@ -16,8 +16,17 @@ export function ResultCard({ result, onRetake }: ResultCardProps) {
   const toxicity = top.details?.toxicity;
 
   return (
-    <View style={styles.resultCard}>
-      <Text style={styles.plantName}>{commonName}</Text>
+    <View 
+      style={styles.resultCard}
+      accessibilityRole="summary"
+      accessibilityLabel={`Plant identification result for ${commonName}`}
+    >
+      <Text 
+        style={styles.plantName}
+        accessibilityRole="header"
+      >
+        {commonName}
+      </Text>
       <Text style={styles.scientificName}>{top.name}</Text>
       <Text style={styles.probability}>
         Confidence: {(top.probability * 100).toFixed(1)}%
@@ -37,7 +46,13 @@ export function ResultCard({ result, onRetake }: ResultCardProps) {
         </View>
       )}
 
-      <TouchableOpacity style={styles.button} onPress={onRetake}>
+      <TouchableOpacity 
+        style={styles.button} 
+        onPress={onRetake}
+        accessibilityRole="button"
+        accessibilityLabel="Take another photo"
+        accessibilityHint="Discards the current result and returns to the camera"
+      >
         <Text style={styles.buttonText}>Take Another Photo</Text>
       </TouchableOpacity>
     </View>

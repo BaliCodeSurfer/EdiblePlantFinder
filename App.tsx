@@ -102,7 +102,13 @@ export default function App() {
         />
       ) : (
         <ScrollView style={styles.previewContainer} contentContainerStyle={styles.scrollContent}>
-          <Image source={{ uri: photoUri }} style={styles.previewImage} resizeMode="contain" />
+          <Image 
+            source={{ uri: photoUri }} 
+            style={styles.previewImage} 
+            resizeMode="contain"
+            accessibilityRole="image"
+            accessibilityLabel="Captured plant photo"
+          />
 
           {result ? (
             <ResultCard result={result} onRetake={reset} />
@@ -135,7 +141,11 @@ export default function App() {
             </View>
           )}
 
-          <Text style={styles.disclaimer}>
+          <Text 
+            style={styles.disclaimer}
+            accessibilityRole="text"
+            accessibilityLabel="Safety disclaimer: This app is for informational purposes only. Never eat wild plants without expert confirmation."
+          >
             ⚠️ SAFETY FIRST: This app is for informational purposes only. Never eat wild plants without expert confirmation.
           </Text>
         </ScrollView>
