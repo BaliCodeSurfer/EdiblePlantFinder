@@ -39,13 +39,22 @@ export function CameraScreen({ facing, onCameraReady, onPictureTaken, onFlipCame
         <Text style={styles.title}>Edible Plant Finder</Text>
 
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <TouchableOpacity style={styles.captureButton} onPress={handleCapture}>
+          <TouchableOpacity
+            style={styles.captureButton}
+            onPress={handleCapture}
+            accessibilityRole="button"
+            accessibilityLabel="Take photo"
+            accessibilityHint="Captures a photo of the plant using the camera"
+          >
             <View style={styles.captureInner} />
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={onFlipCamera}
             style={{ marginLeft: 30, padding: 10 }}
+            accessibilityRole="button"
+            accessibilityLabel="Flip camera"
+            accessibilityHint="Switches between front and back camera"
           >
             <Ionicons name="camera-reverse" size={32} color="#fff" />
           </TouchableOpacity>

@@ -36,7 +36,13 @@ export default function App() {
     return (
       <View style={styles.container}>
         <Text style={styles.message}>We need camera permission to take pictures</Text>
-        <TouchableOpacity style={styles.button} onPress={requestPermission}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={requestPermission}
+          accessibilityRole="button"
+          accessibilityLabel="Grant camera permission"
+          accessibilityHint="Opens the system permission dialog to allow camera access"
+        >
           <Text style={styles.buttonText}>Grant Permission</Text>
         </TouchableOpacity>
       </View>
@@ -106,6 +112,9 @@ export default function App() {
                 style={[styles.button, styles.analyzeButton]}
                 onPress={analyzePlant}
                 disabled={loading}
+                accessibilityRole="button"
+                accessibilityLabel="Analyze photo"
+                accessibilityHint="Sends the captured photo to the server for plant identification"
               >
                 {loading ? (
                   <ActivityIndicator color="#fff" />
@@ -117,7 +126,9 @@ export default function App() {
               <TouchableOpacity
                 style={[styles.button, styles.iconButton]}
                 onPress={reset}
+                accessibilityRole="button"
                 accessibilityLabel="Retake photo"
+                accessibilityHint="Discards the current photo and returns to the camera"
               >
                 <Ionicons name="camera" size={28} color="#fff" />
               </TouchableOpacity>

@@ -135,12 +135,13 @@ export async function identifyPlant(base64Image: string) {
 - All transient errors (network, 5xx, 429) are retried with exponential backoff.
 - In production, set `CORS_ORIGINS` to your actual app's origin(s) instead of `*`.
 
-## Next steps for a stronger portfolio piece
+## Next steps
 
 - Persist identification history (SQLite + SQLAlchemy or Postgres)
 - Expose rate-limit headers (`X-RateLimit-Remaining`, `Retry-After`)
 - Add React Native component tests (Jest + React Native Testing Library)
 - Add structured JSON logging + request correlation IDs
 - Accept `multipart/form-data` uploads instead of base64
+- Multiple pictures to identify a single plant
 
 This service is intentionally small but demonstrates clean architecture, proper secret handling, resilience patterns, testing, and modern infrastructure-as-code practices — exactly what interviewers look for at the senior level.
