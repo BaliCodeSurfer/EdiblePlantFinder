@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { StatusBar } from 'expo-status-bar';
@@ -27,6 +28,23 @@ export default function App() {
   const [base64Image, setBase64Image] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<PlantIdentificationResult | null>(null);
+
+  const resultAnim = useRef(new Animated.Value(0)).current;
+
+  // Drives a fade + slide-up entrance for the ResultCard.
+  // resultAnim goes 0→1 over 1000ms; opacity maps directly while
+  // translateY interpolates from 40px below to its final position.
+  const resultAnimatedStyle = {
+    opacity: resultAnim,
+    transform: [
+      {
+        translateY: resultAnim.interpolate({
+          inputRange: [0, 1],
+          outputRange: [40, 0],
+        }),
+      },
+    ],
+  };
 
   if (!permission) {
     return <View style={styles.container}><Text>Requesting camera permission...</Text></View>;
@@ -71,6 +89,12 @@ export default function App() {
         return;
       }
       setResult(plantResult);
+
+      Animated.timing(resultAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }).start();
     } catch (error: any) {
       console.error('Full error:', error);
       Alert.alert('Analysis failed', error.message ?? 'Unknown error');
@@ -83,6 +107,7 @@ export default function App() {
     setPhotoUri(null);
     setBase64Image(null);
     setResult(null);
+    resultAnim.setValue(0);
   };
 
   const toggleCameraFacing = () => {
@@ -111,7 +136,9 @@ export default function App() {
           />
 
           {result ? (
-            <ResultCard result={result} onRetake={reset} />
+            <Animated.View style={resultAnimatedStyle}>
+              <ResultCard result={result} onRetake={reset} />
+            </Animated.View>
           ) : (
             <View style={styles.actions}>
               <TouchableOpacity
@@ -141,7 +168,7 @@ export default function App() {
             </View>
           )}
 
-          <Text 
+          <Text
             style={styles.disclaimer}
             accessibilityRole="text"
             accessibilityLabel="Safety disclaimer: This app is for informational purposes only. Never eat wild plants without expert confirmation."
