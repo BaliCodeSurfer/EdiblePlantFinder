@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -30,6 +30,44 @@ export default function App() {
   const [result, setResult] = useState<PlantIdentificationResult | null>(null);
 
   const resultAnim = useRef(new Animated.Value(0)).current;
+
+  // Scales the Analyze button down on press and springs back on release.
+  const buttonScale = useRef(new Animated.Value(1)).current;
+
+  // Pulses the Analyze button opacity while the API call is in-flight.
+  const loadingPulse = useRef(new Animated.Value(1)).current;
+
+  // While the API call is in-flight, loop an opacity pulse on the button
+  // (1.0 → 0.4 → 1.0) to signal activity. Stops and resets when done.
+  useEffect(() => {
+    if (loading) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(loadingPulse, { toValue: 0.4, duration: 600, useNativeDriver: true }),
+          Animated.timing(loadingPulse, { toValue: 1, duration: 600, useNativeDriver: true }),
+        ])
+      ).start();
+    } else {
+      loadingPulse.stopAnimation();
+      loadingPulse.setValue(1);
+    }
+  }, [loading]);
+
+  // Shrinks the button slightly on press to give tactile feedback.
+  const onAnalyzePressIn = () => {
+    Animated.spring(buttonScale, {
+      toValue: 0.90,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  // Springs the button back to full size on release, with a natural bounce.
+  const onAnalyzePressOut = () => {
+    Animated.spring(buttonScale, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
 
   // Drives a fade + slide-up entrance for the ResultCard.
   // resultAnim goes 0→1 over 1000ms; opacity maps directly while
@@ -141,20 +179,24 @@ export default function App() {
             </Animated.View>
           ) : (
             <View style={styles.actions}>
-              <TouchableOpacity
-                style={[styles.button, styles.analyzeButton]}
-                onPress={analyzePlant}
-                disabled={loading}
-                accessibilityRole="button"
-                accessibilityLabel="Analyze photo"
-                accessibilityHint="Sends the captured photo to the server for plant identification"
-              >
-                {loading ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <Text style={styles.buttonText}>Analyze Photo</Text>
-                )}
-              </TouchableOpacity>
+              <Animated.View style={{ transform: [{ scale: buttonScale }], opacity: loadingPulse }}>
+                <TouchableOpacity
+                  style={[styles.button, styles.analyzeButton]}
+                  onPress={analyzePlant}
+                  onPressIn={onAnalyzePressIn}
+                  onPressOut={onAnalyzePressOut}
+                  disabled={loading}
+                  accessibilityRole="button"
+                  accessibilityLabel="Analyze photo"
+                  accessibilityHint="Sends the captured photo to the server for plant identification"
+                >
+                  {loading ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <Text style={styles.buttonText}>Analyze Photo</Text>
+                  )}
+                </TouchableOpacity>
+              </Animated.View>
 
               <TouchableOpacity
                 style={[styles.button, styles.iconButton]}
