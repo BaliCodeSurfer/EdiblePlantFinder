@@ -21,6 +21,12 @@ This project demonstrates production-oriented thinking around security, resilien
 - **Infrastructure**: Docker, `docker-compose`, Render Blueprint (`render.yaml`)
 - **CI/CD**: GitHub Actions (TypeScript type checking + pytest)
 
+## Demo
+
+<video src="https://github.com/BaliCodeSurfer/EdiblePlantFinder/releases/download/Demo/RPReplay_Final1778988151.MOV"></video>
+
+[Download demo video (84 MB)](https://github.com/BaliCodeSurfer/EdiblePlantFinder/releases/download/Demo/RPReplay_Final1778988151.MOV)
+
 ## Live Demo
 
 - Backend API docs: [https://plant-id-proxy.onrender.com/docs](https://plant-id-proxy.onrender.com/docs)
