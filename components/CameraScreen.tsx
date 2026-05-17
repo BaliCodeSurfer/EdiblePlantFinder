@@ -6,7 +6,7 @@ import { styles } from '../styles';
 
 interface CameraScreenProps {
   facing: CameraType;
-  onCameraReady: () => void;
+  onCameraReady?: () => void;
   onPictureTaken: (photo: any) => void;
   onFlipCamera: () => void;
 }

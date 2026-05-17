@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
   Animated,
 } from 'react-native';
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import { CameraType, useCameraPermissions } from 'expo-camera';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -20,9 +20,7 @@ import { PlantIdentificationResult } from './types';
 
 export default function App() {
   const [permission, requestPermission] = useCameraPermissions();
-  const [cameraReady, setCameraReady] = useState(false);
   const [facing, setFacing] = useState<CameraType>('back');
-
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [base64Image, setBase64Image] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -70,18 +68,12 @@ export default function App() {
 
   // Shrinks the button slightly on press to give tactile feedback.
   const onAnalyzePressIn = () => {
-    Animated.spring(buttonScale, {
-      toValue: 0.90,
-      useNativeDriver: true,
-    }).start();
+    Animated.spring(buttonScale, { toValue: 0.9, useNativeDriver: true }).start();
   };
 
   // Springs the button back to full size on release, with a natural bounce.
   const onAnalyzePressOut = () => {
-    Animated.spring(buttonScale, {
-      toValue: 1,
-      useNativeDriver: true,
-    }).start();
+    Animated.spring(buttonScale, { toValue: 1, useNativeDriver: true }).start();
   };
 
   // Drives a fade + slide-up entrance for the ResultCard.
@@ -89,14 +81,12 @@ export default function App() {
   // translateY interpolates from 40px below to its final position.
   const resultAnimatedStyle = {
     opacity: resultAnim,
-    transform: [
-      {
-        translateY: resultAnim.interpolate({
-          inputRange: [0, 1],
-          outputRange: [40, 0],
-        }),
-      },
-    ],
+    transform: [{ translateY: resultAnim.interpolate({ inputRange: [0, 1], outputRange: [40, 0] }) }],
+  };
+
+  const analyzeButtonAnimatedStyle = {
+    transform: [{ scale: buttonScale }],
+    opacity: loadingPulse,
   };
 
   if (!permission) {
@@ -120,15 +110,10 @@ export default function App() {
     );
   }
 
-  const takePicture = async (photo: any) => {
-    try {
-      setPhotoUri(photo.uri ?? null);
-      setBase64Image(photo.base64 ?? null);
-      setResult(null);
-    } catch (error) {
-      console.error('Camera error:', error);
-      Alert.alert('Error', 'Failed to take picture');
-    }
+  const takePicture = (photo: any) => {
+    setPhotoUri(photo.uri ?? null);
+    setBase64Image(photo.base64 ?? null);
+    setResult(null);
   };
 
   const analyzePlant = async () => {
@@ -142,12 +127,7 @@ export default function App() {
         return;
       }
       setResult(plantResult);
-
-      Animated.timing(resultAnim, {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-      }).start();
+      Animated.timing(resultAnim, { toValue: 1, duration: 1000, useNativeDriver: true }).start();
     } catch (error: any) {
       console.error('Full error:', error);
       Alert.alert('Analysis failed', error.message ?? 'Unknown error');
@@ -175,7 +155,6 @@ export default function App() {
       {!photoUri ? (
         <CameraScreen
           facing={facing}
-          onCameraReady={() => setCameraReady(true)}
           onPictureTaken={takePicture}
           onFlipCamera={toggleCameraFacing}
         />
@@ -189,14 +168,7 @@ export default function App() {
               styles.previewImage,
               {
                 opacity: photoAnim,
-                transform: [
-                  {
-                    scale: photoAnim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0.6, 1],
-                    }),
-                  },
-                ],
+                transform: [{ scale: photoAnim.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) }],
               },
             ]}
             resizeMode="contain"
@@ -210,7 +182,7 @@ export default function App() {
             </Animated.View>
           ) : (
             <View style={styles.actions}>
-              <Animated.View style={{ transform: [{ scale: buttonScale }], opacity: loadingPulse }}>
+              <Animated.View style={analyzeButtonAnimatedStyle}>
                 <TouchableOpacity
                   style={[styles.button, styles.analyzeButton]}
                   onPress={analyzePlant}
