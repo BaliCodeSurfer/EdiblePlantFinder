@@ -10,6 +10,7 @@ A polished React Native experience for identifying wild plants and determining w
   - Result card: slide-up + fade entrance on successful identification
 - **Full semantic accessibility** using `accessibilityRole`, `accessibilityLabel`, and `accessibilityHint` throughout — designed so screen readers can navigate the entire flow meaningfully
 - **Safety-first design**: a pragmatic toxicity classifier that distinguishes genuine danger warnings from "safe / non-toxic" descriptions returned by the underlying ML API
+- **Frontend tests** using `@testing-library/react-native` covering rendering states, accessibility props, and the toxicity safety logic
 
 The app is built end-to-end with a production-grade FastAPI backend that handles third-party ML API calls securely, rate limiting, retries with exponential backoff, and Dockerized deployment. This demonstrates not only strong UI craft but also the ability to deliver a complete, resilient product experience.
 
@@ -29,6 +30,20 @@ This project showcases attention to motion, accessibility, and interaction quali
 Additional links:
 
 - Backend API docs: [https://plant-id-proxy.onrender.com/docs](https://plant-id-proxy.onrender.com/docs)
+
+## Testing
+
+### Frontend
+
+```bash
+npm test
+```
+
+Runs the React Native test suite with Jest and React Native Testing Library. Currently covers `ResultCard` rendering states, accessibility attributes, and the safety-first toxicity classifier logic.
+
+### Backend
+
+See [`backend/README.md`](backend/README.md) for `pytest` instructions and test details.
 
 ## CI & Testing
 
