@@ -27,6 +27,8 @@ This project demonstrates production-oriented thinking around security, resilien
 
 [Download demo video (84 MB)](https://github.com/txlee1/EdiblePlantFinder/releases/download/v1.0/demo.mp4)
 
+Additional links:
+
 - Backend API docs: [https://plant-id-proxy.onrender.com/docs](https://plant-id-proxy.onrender.com/docs)
 
 ## CI & Testing
