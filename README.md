@@ -25,7 +25,7 @@ This project demonstrates production-oriented thinking around security, resilien
 
 ## Demo
 
-[Download demo video (84 MB)](https://github.com/txlee1/EdiblePlantFinder/releases/download/v1.0/demo.mp4)
+[Download demo video (84 MB)](https://github.com/BaliCodeSurfer/EdiblePlantFinder/releases/download/Demo/RPReplay_Final1778988151.MOV)
 
 Additional links:
 
