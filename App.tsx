@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Image,
   ScrollView,
   Alert,
   ActivityIndicator,
@@ -36,6 +35,22 @@ export default function App() {
 
   // Pulses the Analyze button opacity while the API call is in-flight.
   const loadingPulse = useRef(new Animated.Value(1)).current;
+
+  // Drives a spring scale + fade when a photo is first captured.
+  // Starts invisible and scaled down; springs into place on arrival.
+  const photoAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (photoUri) {
+      photoAnim.setValue(0);
+      Animated.spring(photoAnim, {
+        toValue: 1,
+        friction: 6,
+        tension: 80,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [photoUri]);
 
   // While the API call is in-flight, loop an opacity pulse on the button
   // (1.0 → 0.4 → 1.0) to signal activity. Stops and resets when done.
@@ -146,6 +161,7 @@ export default function App() {
     setBase64Image(null);
     setResult(null);
     resultAnim.setValue(0);
+    photoAnim.setValue(0);
   };
 
   const toggleCameraFacing = () => {
@@ -165,9 +181,24 @@ export default function App() {
         />
       ) : (
         <ScrollView style={styles.previewContainer} contentContainerStyle={styles.scrollContent}>
-          <Image 
-            source={{ uri: photoUri }} 
-            style={styles.previewImage} 
+          {/* photoAnim springs 0→1 on capture, fading in and scaling
+              up from 60% to give the photo a satisfying pop entrance. */}
+          <Animated.Image
+            source={{ uri: photoUri }}
+            style={[
+              styles.previewImage,
+              {
+                opacity: photoAnim,
+                transform: [
+                  {
+                    scale: photoAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.6, 1],
+                    }),
+                  },
+                ],
+              },
+            ]}
             resizeMode="contain"
             accessibilityRole="image"
             accessibilityLabel="Captured plant photo"
