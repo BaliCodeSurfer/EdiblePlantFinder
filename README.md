@@ -12,6 +12,8 @@ The core technical challenge was calling a paid third-party machine learning API
 
 The backend includes 10 focused tests covering authentication, validation, retry logic, and rate limiting. The entire stack can be run locally with a single `docker compose up --build` command.
 
+The frontend includes polished spring-based animations (photo capture, button press feedback, loading pulse, result entrance), full semantic accessibility markup, and a safety-first toxicity classifier that correctly distinguishes genuine warnings from "safe / non-toxic" descriptions.
+
 This project demonstrates production-oriented thinking around security, resilience, observability, testing, and modern deployment practices — skills I bring to senior full-stack engineering roles.
 
 ## Tech Stack
@@ -23,11 +25,7 @@ This project demonstrates production-oriented thinking around security, resilien
 
 ## Demo
 
-<video src="https://github.com/BaliCodeSurfer/EdiblePlantFinder/releases/download/Demo/RPReplay_Final1778988151.MOV"></video>
-
-[Download demo video (84 MB)](https://github.com/BaliCodeSurfer/EdiblePlantFinder/releases/download/Demo/RPReplay_Final1778988151.MOV)
-
-## Live Demo
+[Download demo video (84 MB)](https://github.com/txlee1/EdiblePlantFinder/releases/download/v1.0/demo.mp4)
 
 - Backend API docs: [https://plant-id-proxy.onrender.com/docs](https://plant-id-proxy.onrender.com/docs)
 
