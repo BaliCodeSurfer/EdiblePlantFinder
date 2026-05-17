@@ -105,5 +105,6 @@ For detailed information about the FastAPI service, environment variables, deplo
 This project is open source and available under the [MIT License](LICENSE).
 
 ---
+One caveat on the plant identification API. It's been trained only with plant images so it thinks everything is some kind of plant. If you take a picture of a car it will predict with low confidence that the car is some kind of plant. 
 
 Built as a portfolio and passion project to demonstrate senior-level full-stack engineering skills.
