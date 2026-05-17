@@ -1,20 +1,19 @@
 # Edible Plant Finder
 
-A mobile-first application that lets users photograph wild plants and instantly determine whether they are safe to eat. The app captures a photo on-device, sends it to a secure backend, and returns rich identification results including common names, edibility, toxicity warnings, and confidence scores.
+A polished React Native experience for identifying wild plants and determining whether they are safe to eat. The app emphasizes smooth micro-interactions, thoughtful motion design, and robust accessibility to create a trustworthy, delightful interface for a safety-critical use case.
 
-The core technical challenge was calling a paid third-party machine learning API securely from an unauthenticated mobile client without exposing the API key. I solved this by building a lightweight FastAPI proxy that:
+## UI & Interaction Highlights
 
-- Keeps the Plant.id API key server-side
-- Issues short-lived JWTs for anonymous client sessions
-- Applies per-IP rate limiting using `slowapi`
-- Implements exponential backoff retries with `tenacity` for transient failures (network errors, 5xx, 429)
-- Is fully Dockerized with healthchecks and deployed via Infrastructure-as-Code (`render.yaml` Blueprint) on Render
+- **Spring-based animations** built with React Native's built-in `Animated` API:
+  - Photo capture: scale + fade "pop" entrance
+  - Analyze button: press-scale feedback + loading pulse while waiting for results
+  - Result card: slide-up + fade entrance on successful identification
+- **Full semantic accessibility** using `accessibilityRole`, `accessibilityLabel`, and `accessibilityHint` throughout — designed so screen readers can navigate the entire flow meaningfully
+- **Safety-first design**: a pragmatic toxicity classifier that distinguishes genuine danger warnings from "safe / non-toxic" descriptions returned by the underlying ML API
 
-The backend includes 10 focused tests covering authentication, validation, retry logic, and rate limiting. The entire stack can be run locally with a single `docker compose up --build` command.
+The app is built end-to-end with a production-grade FastAPI backend that handles third-party ML API calls securely, rate limiting, retries with exponential backoff, and Dockerized deployment. This demonstrates not only strong UI craft but also the ability to deliver a complete, resilient product experience.
 
-The frontend includes polished spring-based animations (photo capture, button press feedback, loading pulse, result entrance), full semantic accessibility markup, and a safety-first toxicity classifier that correctly distinguishes genuine warnings from "safe / non-toxic" descriptions.
-
-This project demonstrates production-oriented thinking around security, resilience, observability, testing, and modern deployment practices — skills I bring to senior full-stack engineering roles.
+This project showcases attention to motion, accessibility, and interaction quality — skills I bring to senior UI engineering roles.
 
 ## Tech Stack
 
