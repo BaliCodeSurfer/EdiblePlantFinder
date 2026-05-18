@@ -3,7 +3,7 @@ import { Text } from 'react-native';
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import { ErrorBoundary } from '../ErrorBoundary';
 
-function ThrowOnRender({ message }: { message: string }) {
+function ThrowOnRender({ message }: { message: string }): React.ReactElement {
   throw new Error(message);
 }
 
