@@ -50,6 +50,7 @@ See [`backend/README.md`](backend/README.md) for `pytest` instructions and test 
 This project uses GitHub Actions for continuous integration:
 
 - TypeScript type checking on every push and pull request
+- Frontend tests (`npm test`) on every push and pull request
 - Python tests (`pytest`) on the backend
 - Manual trigger support via `workflow_dispatch`
 
