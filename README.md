@@ -98,12 +98,25 @@ Scan the QR code with Expo Go (iOS/Android) or run on a simulator.
 EdiblePlantFinder/
 ├── .github/
 │   └── workflows/
-│       └── ci.yml             # GitHub Actions CI (TypeScript + pytest)
+│       └── ci.yml             # GitHub Actions CI (typecheck + frontend/backend tests)
+├── hooks/
+│   └── useAppAnimations.ts    # Shared animation logic (photo entrance, button press, loading pulse)
+├── components/
+│   ├── __tests__/
+│   │   ├── ResultCard.test.tsx
+│   │   └── ErrorBoundary.test.tsx
+│   ├── CameraScreen.tsx
+│   ├── ResultCard.tsx
+│   ├── ErrorBoundary.tsx
+│   └── README.md              # Component documentation
+├── services/
+│   └── plantId.ts             # API client for the backend
 ├── App.tsx                    # Main React Native entry point (TypeScript)
 ├── types.ts                   # Shared TypeScript interfaces
-├── services/plantId.ts        # API client for the backend
-├── components/                # CameraScreen, ResultCard (TypeScript)
 ├── styles.ts                  # StyleSheet definitions
+├── babel.config.js
+├── jest.config.js
+├── package.json
 ├── backend/                   # FastAPI proxy service
 │   ├── app/
 │   │   ├── main.py            # FastAPI app + routes
