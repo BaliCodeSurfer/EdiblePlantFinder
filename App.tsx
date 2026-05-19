@@ -7,6 +7,7 @@ import {
   Alert,
   ActivityIndicator,
   Animated,
+  useWindowDimensions,
 } from 'react-native';
 import { CameraType, useCameraPermissions } from 'expo-camera';
 import { StatusBar } from 'expo-status-bar';
@@ -25,6 +26,9 @@ export default function App() {
   const [base64Image, setBase64Image] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<PlantIdentificationResult | null>(null);
+
+  const { width, height } = useWindowDimensions();
+  const isWide = width > 700;
 
   const resultAnim = useRef(new Animated.Value(0)).current;
 
@@ -160,12 +164,17 @@ export default function App() {
         />
       ) : (
         <ScrollView style={styles.previewContainer} contentContainerStyle={styles.scrollContent}>
-          {/* photoAnim springs 0→1 on capture, fading in and scaling
-              up from 60% to give the photo a satisfying pop entrance. */}
+          <View style={[styles.contentWrapper, isWide && styles.contentWrapperWide]}>
+            {/* photoAnim springs 0→1 on capture, fading in and scaling
+                up from 60% to give the photo a satisfying pop entrance. */}
           <Animated.Image
             source={{ uri: photoUri }}
             style={[
               styles.previewImage,
+              isWide && {
+                height: Math.min(height * 0.6, 900),
+                borderRadius: 20,
+              },
               {
                 opacity: photoAnim,
                 transform: [{ scale: photoAnim.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) }],
@@ -176,50 +185,51 @@ export default function App() {
             accessibilityLabel="Captured plant photo"
           />
 
-          {result ? (
-            <Animated.View style={resultAnimatedStyle}>
-              <ResultCard result={result} onRetake={reset} />
-            </Animated.View>
-          ) : (
-            <View style={styles.actions}>
-              <Animated.View style={analyzeButtonAnimatedStyle}>
-                <TouchableOpacity
-                  style={[styles.button, styles.analyzeButton]}
-                  onPress={analyzePlant}
-                  onPressIn={onAnalyzePressIn}
-                  onPressOut={onAnalyzePressOut}
-                  disabled={loading}
-                  accessibilityRole="button"
-                  accessibilityLabel="Analyze photo"
-                  accessibilityHint="Sends the captured photo to the server for plant identification"
-                >
-                  {loading ? (
-                    <ActivityIndicator color="#fff" />
-                  ) : (
-                    <Text style={styles.buttonText}>Analyze Photo</Text>
-                  )}
-                </TouchableOpacity>
+            {result ? (
+              <Animated.View style={resultAnimatedStyle}>
+                <ResultCard result={result} onRetake={reset} />
               </Animated.View>
+            ) : (
+              <View style={[styles.actions, isWide && styles.actionsWide]}>
+                <Animated.View style={analyzeButtonAnimatedStyle}>
+                  <TouchableOpacity
+                    style={[styles.button, styles.analyzeButton, isWide && styles.buttonWide]}
+                    onPress={analyzePlant}
+                    onPressIn={onAnalyzePressIn}
+                    onPressOut={onAnalyzePressOut}
+                    disabled={loading}
+                    accessibilityRole="button"
+                    accessibilityLabel="Analyze photo"
+                    accessibilityHint="Sends the captured photo to the server for plant identification"
+                  >
+                    {loading ? (
+                      <ActivityIndicator color="#fff" />
+                    ) : (
+                      <Text style={styles.buttonText}>Analyze Photo</Text>
+                    )}
+                  </TouchableOpacity>
+                </Animated.View>
 
-              <TouchableOpacity
-                style={[styles.button, styles.iconButton]}
-                onPress={reset}
-                accessibilityRole="button"
-                accessibilityLabel="Retake photo"
-                accessibilityHint="Discards the current photo and returns to the camera"
-              >
-                <Ionicons name="camera" size={28} color="#fff" />
-              </TouchableOpacity>
-            </View>
-          )}
+                <TouchableOpacity
+                  style={[styles.button, styles.iconButton, isWide && styles.iconButtonWide]}
+                  onPress={reset}
+                  accessibilityRole="button"
+                  accessibilityLabel="Retake photo"
+                  accessibilityHint="Discards the current photo and returns to the camera"
+                >
+                  <Ionicons name="camera" size={isWide ? 36 : 28} color="#fff" />
+                </TouchableOpacity>
+              </View>
+            )}
 
-          <Text
-            style={styles.disclaimer}
-            accessibilityRole="text"
-            accessibilityLabel="Safety disclaimer: This app is for informational purposes only. Never eat wild plants without expert confirmation."
-          >
-            ⚠️ SAFETY FIRST: This app is for informational purposes only. Never eat wild plants without expert confirmation.
-          </Text>
+            <Text
+              style={[styles.disclaimer, isWide && styles.disclaimerWide]}
+              accessibilityRole="text"
+              accessibilityLabel="Safety disclaimer: This app is for informational purposes only. Never eat wild plants without expert confirmation."
+            >
+              ⚠️ SAFETY FIRST: This app is for informational purposes only. Never eat wild plants without expert confirmation.
+            </Text>
+          </View>
         </ScrollView>
       )}
     </View>

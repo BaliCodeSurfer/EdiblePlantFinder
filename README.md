@@ -9,6 +9,7 @@ A polished React Native experience for identifying wild plants and determining w
   - Analyze button: press-scale feedback + loading pulse while waiting for results
   - Result card: slide-up + fade entrance on successful identification
 - **Full semantic accessibility** using `accessibilityRole`, `accessibilityLabel`, and `accessibilityHint` throughout — designed so screen readers can navigate the entire flow meaningfully
+- **Responsive large-screen layout**: photo preview scales to ~60% of screen height (with max cap) on tablets and wide screens, with larger touch targets and centered content
 - **Safety-first design**: a pragmatic toxicity classifier that distinguishes genuine danger warnings from "safe / non-toxic" descriptions returned by the underlying ML API
 - **Error boundary**: catches unhandled runtime errors and renders a friendly fallback screen rather than crashing — with error reporting hooks ready for Sentry/Datadog in production
 - **Frontend tests** using `@testing-library/react-native` covering rendering states, accessibility props, and the toxicity safety logic

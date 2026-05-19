@@ -73,4 +73,35 @@ export const styles = StyleSheet.create({
     lineHeight: 18,
   },
   message: { color: '#fff', fontSize: 18, textAlign: 'center', margin: 40 },
+
+  // Large-screen / wide layout styles
+  contentWrapper: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  contentWrapperWide: {
+    maxWidth: 720,
+    alignSelf: 'center',
+  },
+  actionsWide: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 24,
+    marginTop: 24,
+  },
+  buttonWide: {
+    paddingVertical: 18,
+    paddingHorizontal: 48,
+    borderRadius: 36,
+    minWidth: 280,
+  },
+  iconButtonWide: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+  },
+  disclaimerWide: {
+    fontSize: 15,
+    marginTop: 32,
+  },
 });

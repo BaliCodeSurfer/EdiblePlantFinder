@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { CameraView, CameraType } from 'expo-camera';
+import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { styles } from '../styles';
 
@@ -28,6 +29,23 @@ export function CameraScreen({ facing, onCameraReady, onPictureTaken, onFlipCame
     }
   };
 
+  const handlePickFromLibrary = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.85,
+      base64: true,
+    });
+
+    if (!result.canceled && result.assets.length > 0) {
+      const asset = result.assets[0];
+      onPictureTaken({
+        uri: asset.uri,
+        base64: asset.base64,
+      });
+    }
+  };
+
   return (
     <CameraView
       ref={cameraRef}
@@ -44,6 +62,16 @@ export function CameraScreen({ facing, onCameraReady, onPictureTaken, onFlipCame
         </Text>
 
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity
+            onPress={handlePickFromLibrary}
+            style={{ marginRight: 30, padding: 10 }}
+            accessibilityRole="button"
+            accessibilityLabel="Pick photo from library"
+            accessibilityHint="Opens the photo library to choose an existing image"
+          >
+            <Ionicons name="images" size={32} color="#fff" />
+          </TouchableOpacity>
+
           <TouchableOpacity
             style={styles.captureButton}
             onPress={handleCapture}
