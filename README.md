@@ -27,11 +27,12 @@ This project showcases attention to motion, accessibility, and interaction quali
 
 ## Demo
 
+A short video walkthrough of the app is available here:
+
 [Download demo video (84 MB)](https://github.com/BaliCodeSurfer/EdiblePlantFinder/releases/download/Demo/RPReplay_Final1778988151.MOV)
 
-Additional links:
-
-- Backend API docs: [https://plant-id-proxy.onrender.com/docs](https://plant-id-proxy.onrender.com/docs)
+**Additional resources**
+- [Backend API documentation](https://plant-id-proxy.onrender.com/docs)
 
 ## Testing
 
@@ -69,7 +70,7 @@ You can view the latest CI runs in the **Actions** tab of the repository.
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/txlee1/EdiblePlantFinder.git
+git clone https://github.com/BaliCodeSurfer/EdiblePlantFinder.git
 cd EdiblePlantFinder
 
 # 2. Start the backend
