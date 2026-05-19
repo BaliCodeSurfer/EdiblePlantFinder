@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -18,6 +18,7 @@ import { identifyPlant } from './services/plantId';
 import { CameraScreen } from './components/CameraScreen';
 import { ResultCard } from './components/ResultCard';
 import { PlantIdentificationResult } from './types';
+import { useAppAnimations } from './hooks/useAppAnimations';
 
 export default function App() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -30,68 +31,15 @@ export default function App() {
   const { width, height } = useWindowDimensions();
   const isWide = width > 700;
 
-  const resultAnim = useRef(new Animated.Value(0)).current;
+  const {
+    resultAnim,
+    photoAnim,
+    onAnalyzePressIn,
+    onAnalyzePressOut,
+    resultAnimatedStyle,
+    analyzeButtonAnimatedStyle,
+  } = useAppAnimations(photoUri, loading);
 
-  // Scales the Analyze button down on press and springs back on release.
-  const buttonScale = useRef(new Animated.Value(1)).current;
-
-  // Pulses the Analyze button opacity while the API call is in-flight.
-  const loadingPulse = useRef(new Animated.Value(1)).current;
-
-  // Drives a spring scale + fade when a photo is first captured.
-  // Starts invisible and scaled down; springs into place on arrival.
-  const photoAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    if (photoUri) {
-      photoAnim.setValue(0);
-      Animated.spring(photoAnim, {
-        toValue: 1,
-        friction: 6,
-        tension: 80,
-        useNativeDriver: true,
-      }).start();
-    }
-  }, [photoUri]);
-
-  // While the API call is in-flight, loop an opacity pulse on the button
-  // (1.0 → 0.4 → 1.0) to signal activity. Stops and resets when done.
-  useEffect(() => {
-    if (loading) {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(loadingPulse, { toValue: 0.4, duration: 600, useNativeDriver: true }),
-          Animated.timing(loadingPulse, { toValue: 1, duration: 600, useNativeDriver: true }),
-        ])
-      ).start();
-    } else {
-      loadingPulse.stopAnimation();
-      loadingPulse.setValue(1);
-    }
-  }, [loading]);
-
-  // Shrinks the button slightly on press to give tactile feedback.
-  const onAnalyzePressIn = () => {
-    Animated.spring(buttonScale, { toValue: 0.9, useNativeDriver: true }).start();
-  };
-
-  // Springs the button back to full size on release, with a natural bounce.
-  const onAnalyzePressOut = () => {
-    Animated.spring(buttonScale, { toValue: 1, useNativeDriver: true }).start();
-  };
-
-  // Drives a fade + slide-up entrance for the ResultCard.
-  // resultAnim goes 0→1 over 1000ms; opacity maps directly while
-  // translateY interpolates from 40px below to its final position.
-  const resultAnimatedStyle = {
-    opacity: resultAnim,
-    transform: [{ translateY: resultAnim.interpolate({ inputRange: [0, 1], outputRange: [40, 0] }) }],
-  };
-
-  const analyzeButtonAnimatedStyle = {
-    transform: [{ scale: buttonScale }],
-    opacity: loadingPulse,
-  };
 
   if (!permission) {
     return <View style={styles.container}><Text>Requesting camera permission...</Text></View>;
