@@ -22,7 +22,20 @@ export const styles = StyleSheet.create({
   previewContainer: { flex: 1, backgroundColor: '#111' },
   scrollContent: { padding: 20, alignItems: 'center' },
   previewImage: { width: '100%', height: 400, borderRadius: 16, marginBottom: 20 },
-  resultCard: { width: '100%', backgroundColor: '#222', borderRadius: 16, padding: 20, marginBottom: 20 },
+  resultCard: {
+    width: '100%',
+    backgroundColor: '#222',
+    borderRadius: 20,
+    padding: 24,
+    marginBottom: 20,
+    // Stronger shadow for visual weight (iOS)
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 16,
+    // Android elevation
+    elevation: 10,
+  },
   plantName: { fontSize: 22, fontWeight: 'bold', color: '#fff', textAlign: 'center' },
   scientificName: { fontSize: 13, fontStyle: 'italic', color: '#bbb', textAlign: 'center', marginTop: 2 },
   probability: { fontSize: 16, color: '#aaa', textAlign: 'center', marginBottom: 15 },
