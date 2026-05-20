@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   content: {
-    paddingBottom: 40,
+    paddingBottom: 60,
   },
   photo: {
     width: '100%',
@@ -153,9 +153,13 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
   },
   timestamp: {
-    color: '#666',
-    fontSize: 13,
+    color: '#888',
+    fontSize: 15,
+    fontWeight: '400',
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: 28,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#222',
   },
 });
