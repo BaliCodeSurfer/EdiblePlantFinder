@@ -104,4 +104,47 @@ export const styles = StyleSheet.create({
     fontSize: 15,
     marginTop: 32,
   },
+
+  // Tab bar styles
+  tabBar: {
+    flexDirection: 'row',
+    backgroundColor: '#000',
+    borderBottomWidth: 1,
+    borderBottomColor: '#222',
+  },
+  tabButton: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 12,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  tabButtonActive: {
+    borderBottomWidth: 3,
+    borderBottomColor: '#0c0',
+  },
+  tabText: {
+    color: '#888',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  tabTextActive: {
+    color: '#fff',
+  },
+
+  // Save button
+  saveButton: {
+    backgroundColor: '#2e7d32',
+    marginTop: 12,
+  },
+
+  // Result action row (Save + Retake icon)
+  resultActions: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 16,
+    marginTop: 12,
+  },
 });

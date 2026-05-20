@@ -1,14 +1,13 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text } from 'react-native';
 import { styles } from '../styles';
 import { PlantIdentificationResult } from '../types';
 
 interface ResultCardProps {
   result: PlantIdentificationResult;
-  onRetake: () => void;
 }
 
-export function ResultCard({ result, onRetake }: ResultCardProps) {
+export function ResultCard({ result }: ResultCardProps) {
   const top = result.classification.suggestions[0];
   const commonName = top.details?.common_names?.[0] ?? top.name;
   const edibleParts = top.details?.edible_parts ?? [];
@@ -82,15 +81,6 @@ export function ResultCard({ result, onRetake }: ResultCardProps) {
         </View>
       )}
 
-      <TouchableOpacity 
-        style={styles.button} 
-        onPress={onRetake}
-        accessibilityRole="button"
-        accessibilityLabel="Take another photo"
-        accessibilityHint="Discards the current result and returns to the camera"
-      >
-        <Text style={styles.buttonText}>Take Another Photo</Text>
-      </TouchableOpacity>
     </View>
   );
 }

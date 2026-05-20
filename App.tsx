@@ -9,6 +9,7 @@ import {
   Animated,
   useWindowDimensions,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraType, useCameraPermissions } from 'expo-camera';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,8 +18,13 @@ import { styles } from './styles';
 import { identifyPlant } from './services/plantId';
 import { CameraScreen } from './components/CameraScreen';
 import { ResultCard } from './components/ResultCard';
+import { MyPlantsScreen } from './components/MyPlantsScreen';
+import { SavedPlantDetail } from './components/SavedPlantDetail';
 import { PlantIdentificationResult } from './types';
 import { useAppAnimations } from './hooks/useAppAnimations';
+import { saveIdentification, SavedIdentification } from './services/storage';
+
+type Tab = 'camera' | 'myPlants';
 
 export default function App() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -27,6 +33,10 @@ export default function App() {
   const [base64Image, setBase64Image] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<PlantIdentificationResult | null>(null);
+
+  const [activeTab, setActiveTab] = useState<Tab>('camera');
+  const [selectedPlant, setSelectedPlant] = useState<SavedIdentification | null>(null);
+  const [detailVisible, setDetailVisible] = useState(false);
 
   const { width, height } = useWindowDimensions();
   const isWide = width > 700;
@@ -40,6 +50,27 @@ export default function App() {
     analyzeButtonAnimatedStyle,
   } = useAppAnimations(photoUri, loading);
 
+  const handleSaveToMyPlants = async () => {
+    if (!result) return;
+
+    try {
+      await saveIdentification(result, photoUri, base64Image);
+      Alert.alert('Saved!', 'This plant has been added to My Plants.');
+    } catch (error: any) {
+      console.error('Failed to save plant:', error);
+      Alert.alert('Error', error?.message ?? 'Failed to save plant.');
+    }
+  };
+
+  const handleSelectPlant = (item: SavedIdentification) => {
+    setSelectedPlant(item);
+    setDetailVisible(true);
+  };
+
+  const closeDetail = () => {
+    setDetailVisible(false);
+    setSelectedPlant(null);
+  };
 
   if (!permission) {
     return <View style={styles.container}><Text>Requesting camera permission...</Text></View>;
@@ -66,6 +97,7 @@ export default function App() {
     setPhotoUri(photo.uri ?? null);
     setBase64Image(photo.base64 ?? null);
     setResult(null);
+    setActiveTab('camera');
   };
 
   const analyzePlant = async () => {
@@ -100,7 +132,7 @@ export default function App() {
     setFacing(current => (current === 'back' ? 'front' : 'back'));
   };
 
-  return (
+  const renderCameraTab = () => (
     <View style={styles.container}>
       <StatusBar style="light" />
 
@@ -113,29 +145,48 @@ export default function App() {
       ) : (
         <ScrollView style={styles.previewContainer} contentContainerStyle={styles.scrollContent}>
           <View style={[styles.contentWrapper, isWide && styles.contentWrapperWide]}>
-            {/* photoAnim springs 0→1 on capture, fading in and scaling
-                up from 60% to give the photo a satisfying pop entrance. */}
-          <Animated.Image
-            source={{ uri: photoUri }}
-            style={[
-              styles.previewImage,
-              isWide && {
-                height: Math.min(height * 0.6, 900),
-                borderRadius: 20,
-              },
-              {
-                opacity: photoAnim,
-                transform: [{ scale: photoAnim.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) }],
-              },
-            ]}
-            resizeMode="contain"
-            accessibilityRole="image"
-            accessibilityLabel="Captured plant photo"
-          />
+            <Animated.Image
+              source={{ uri: photoUri }}
+              style={[
+                styles.previewImage,
+                isWide && {
+                  height: Math.min(height * 0.6, 650),
+                  borderRadius: 20,
+                },
+                {
+                  opacity: photoAnim,
+                  transform: [{ scale: photoAnim.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) }],
+                },
+              ]}
+              resizeMode="contain"
+              accessibilityRole="image"
+              accessibilityLabel="Captured plant photo"
+            />
 
             {result ? (
               <Animated.View style={resultAnimatedStyle}>
-                <ResultCard result={result} onRetake={reset} />
+                <ResultCard result={result} />
+
+                <View style={styles.resultActions}>
+                  <TouchableOpacity
+                    style={[styles.button, styles.saveButton]}
+                    onPress={handleSaveToMyPlants}
+                    accessibilityRole="button"
+                    accessibilityLabel="Save to My Plants"
+                  >
+                    <Text style={styles.buttonText}>Save to My Plants</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.button, styles.iconButton]}
+                    onPress={reset}
+                    accessibilityRole="button"
+                    accessibilityLabel="Retake photo"
+                    accessibilityHint="Discards the current result and returns to the camera"
+                  >
+                    <Ionicons name="camera" size={28} color="#fff" />
+                  </TouchableOpacity>
+                </View>
               </Animated.View>
             ) : (
               <View style={[styles.actions, isWide && styles.actionsWide]}>
@@ -180,6 +231,58 @@ export default function App() {
           </View>
         </ScrollView>
       )}
+    </View>
+  );
+
+  const renderMyPlantsTab = () => (
+    <MyPlantsScreen onSelect={handleSelectPlant} />
+  );
+
+  return (
+    <View style={styles.container}>
+      {/* Tab Bar with safe area for notch / status bar */}
+      <SafeAreaView edges={['top']} style={styles.tabBar}>
+        <TouchableOpacity
+          style={[styles.tabButton, activeTab === 'camera' && styles.tabButtonActive]}
+          onPress={() => setActiveTab('camera')}
+        >
+          <Ionicons
+            name="camera"
+            size={24}
+            color={activeTab === 'camera' ? '#fff' : '#888'}
+          />
+          <Text style={[styles.tabText, activeTab === 'camera' && styles.tabTextActive]}>
+            Camera
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.tabButton, activeTab === 'myPlants' && styles.tabButtonActive]}
+          onPress={() => setActiveTab('myPlants')}
+        >
+          <Ionicons
+            name="leaf"
+            size={24}
+            color={activeTab === 'myPlants' ? '#fff' : '#888'}
+          />
+          <Text style={[styles.tabText, activeTab === 'myPlants' && styles.tabTextActive]}>
+            My Plants
+          </Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+
+      {/* Tab Content */}
+      {activeTab === 'camera' ? renderCameraTab() : renderMyPlantsTab()}
+
+      {/* Detail Modal */}
+      <SavedPlantDetail
+        visible={detailVisible}
+        item={selectedPlant}
+        onClose={() => {
+          setDetailVisible(false);
+          setSelectedPlant(null);
+        }}
+      />
     </View>
   );
 }

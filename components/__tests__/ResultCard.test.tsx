@@ -3,8 +3,6 @@ import { render, screen } from '@testing-library/react-native';
 import { ResultCard } from '../ResultCard';
 import { PlantIdentificationResult } from '../../types';
 
-const mockOnRetake = jest.fn();
-
 function makeResult(overrides: any = {}): PlantIdentificationResult {
   return {
     classification: {
@@ -27,7 +25,7 @@ function makeResult(overrides: any = {}): PlantIdentificationResult {
 describe('ResultCard', () => {
   it('renders edible state when edible_parts exist and no toxicity', () => {
     const result = makeResult({ edible_parts: ['leaves', 'flowers'] });
-    render(<ResultCard result={result} onRetake={mockOnRetake} />);
+    render(<ResultCard result={result} />);
 
     expect(screen.getByText('✅ EDIBLE PLANT DETECTED')).toBeTruthy();
     expect(screen.getByText('Edible parts: leaves, flowers')).toBeTruthy();
@@ -37,7 +35,7 @@ describe('ResultCard', () => {
     const result = makeResult({
       toxicity: 'Toxic if ingested in large quantities',
     });
-    render(<ResultCard result={result} onRetake={mockOnRetake} />);
+    render(<ResultCard result={result} />);
 
     expect(screen.getByText('⚠️ TOXICITY WARNING')).toBeTruthy();
     expect(screen.getByText(/Toxic if ingested/)).toBeTruthy();
@@ -48,7 +46,7 @@ describe('ResultCard', () => {
       edible_parts: ['leaves'],
       toxicity: 'This plant is generally considered safe and non-toxic.',
     });
-    render(<ResultCard result={result} onRetake={mockOnRetake} />);
+    render(<ResultCard result={result} />);
 
     expect(screen.getByText('✅ EDIBLE PLANT DETECTED')).toBeTruthy();
     expect(screen.queryByText('⚠️ TOXICITY WARNING')).toBeNull();
@@ -56,11 +54,12 @@ describe('ResultCard', () => {
 
   it('includes proper accessibility attributes', () => {
     const result = makeResult({ edible_parts: ['roots'] });
-    render(<ResultCard result={result} onRetake={mockOnRetake} />);
+    render(<ResultCard result={result} />);
 
     const summary = screen.getByLabelText(/Edible plant detected/);
     expect(summary.props.accessibilityLabel).toContain('Edible plant detected');
     expect(screen.getByRole('header')).toBeTruthy();
-    expect(screen.getByRole('button')).toBeTruthy();
+    // No button inside ResultCard (retake action lives outside the component)
+    expect(screen.queryByRole('button')).toBeNull();
   });
 });
