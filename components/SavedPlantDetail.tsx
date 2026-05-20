@@ -34,9 +34,15 @@ export function SavedPlantDetail({ visible, item, onClose }: Props) {
     <Modal
       visible={visible}
       animationType="slide"
+      presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
       <View style={styles.container}>
+        {/* Drag handle for iOS page sheet */}
+        <View style={styles.dragHandleContainer}>
+          <View style={styles.dragHandle} />
+        </View>
+
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <Text style={styles.closeText}>✕</Text>
@@ -76,10 +82,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 60,
+    paddingTop: 8,
     paddingHorizontal: 16,
     paddingBottom: 16,
     backgroundColor: '#000',
+  },
+
+  // Drag handle (iOS page sheet style)
+  dragHandleContainer: {
+    alignItems: 'center',
+    paddingTop: 8,
+    paddingBottom: 4,
+    backgroundColor: '#000',
+  },
+  dragHandle: {
+    width: 36,
+    height: 4,
+    backgroundColor: '#555',
+    borderRadius: 2,
   },
   closeButton: {
     width: 40,
