@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraType, useCameraPermissions } from 'expo-camera';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 
 import { styles } from './styles';
 import { identifyPlant } from './services/plantId';
@@ -55,6 +56,10 @@ export default function App() {
 
     try {
       await saveIdentification(result, photoUri, base64Image);
+
+      // Pleasant success haptic when saving a plant
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
       Alert.alert('Saved!', 'This plant has been added to My Plants.');
     } catch (error: any) {
       console.error('Failed to save plant:', error);
