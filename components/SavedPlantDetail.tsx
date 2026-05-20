@@ -8,6 +8,8 @@ import {
   Modal,
   ScrollView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SavedIdentification } from '../services/storage';
 import { ResultCard } from './ResultCard';
@@ -44,13 +46,20 @@ export function SavedPlantDetail({ visible, item, onClose }: Props) {
           <View style={styles.dragHandle} />
         </View>
 
-        <View style={styles.header}>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Text style={styles.closeText}>✕</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Saved Plant</Text>
-          <View style={{ width: 40 }} />
-        </View>
+        {/* Header with blur background and SafeAreaView */}
+        <SafeAreaView edges={['top']} style={styles.headerWrapper}>
+          <BlurView intensity={60} tint="dark" style={styles.header}>
+            <TouchableOpacity
+              onPress={onClose}
+              style={styles.closeButton}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            >
+              <Text style={styles.closeText}>✕</Text>
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Saved Plant</Text>
+            <View style={{ width: 44 }} />
+          </BlurView>
+        </SafeAreaView>
 
         <ScrollView contentContainerStyle={styles.content}>
           {getImageSource() && (
@@ -82,14 +91,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#111',
   },
+  headerWrapper: {
+    backgroundColor: 'transparent',
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 8,
     paddingHorizontal: 16,
+    paddingTop: 8,
     paddingBottom: 16,
-    backgroundColor: '#000',
+    // Semi-transparent background as fallback when blur is not rendered
+    backgroundColor: 'rgba(0,0,0,0.6)',
   },
 
   // Drag handle (iOS page sheet style)
@@ -106,12 +119,17 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   closeButton: {
-    width: 40,
+    width: 44,
+    height: 44,
     alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 22,
+    backgroundColor: 'rgba(255,255,255,0.1)',
   },
   closeText: {
     color: '#fff',
-    fontSize: 24,
+    fontSize: 26,
+    fontWeight: '300',
   },
   headerTitle: {
     color: '#fff',

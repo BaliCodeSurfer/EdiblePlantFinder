@@ -9,6 +9,11 @@ jest.mock('expo-linear-gradient', () => ({
   LinearGradient: ({ children }: { children: React.ReactNode }) => children,
 }));
 
+// Mock expo-blur for testing
+jest.mock('expo-blur', () => ({
+  BlurView: ({ children }: { children: React.ReactNode }) => children,
+}));
+
 function makeMockResult(): PlantIdentificationResult {
   return {
     classification: {
