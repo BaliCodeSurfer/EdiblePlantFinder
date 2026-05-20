@@ -12,7 +12,8 @@ A polished React Native experience for identifying wild plants and determining w
 - **Responsive large-screen layout**: photo preview scales to ~60% of screen height (with max cap) on tablets and wide screens, with larger touch targets and centered content
 - **Safety-first design**: a pragmatic toxicity classifier that distinguishes genuine danger warnings from "safe / non-toxic" descriptions returned by the underlying ML API
 - **Error boundary**: catches unhandled runtime errors and renders a friendly fallback screen rather than crashing — with error reporting hooks ready for Sentry/Datadog in production
-- **Frontend tests** using `@testing-library/react-native` covering rendering states, accessibility props, and the toxicity safety logic
+- **Frontend tests** using `@testing-library/react-native` covering rendering states, accessibility props, toxicity safety logic, ErrorBoundary behavior, and the new SavedPlantDetail modal
+- **"My Plants" history**: tab-based navigation with local persistence — save identifications (including the photo) using the modern `expo-file-system` File/Directory API + AsyncStorage. Past results open in a full-screen detail modal showing the original photo and complete ResultCard. Delete with confirmation.
 
 The app is built end-to-end with a production-grade FastAPI backend that handles third-party ML API calls securely, rate limiting, retries with exponential backoff, and Dockerized deployment. This demonstrates not only strong UI craft but also the ability to deliver a complete, resilient product experience.
 
@@ -42,7 +43,7 @@ A short video walkthrough of the app is available here:
 npm test
 ```
 
-Runs the React Native test suite with Jest and React Native Testing Library. Currently covers `ResultCard` (rendering states, accessibility, toxicity logic) and `ErrorBoundary` (fallback UI and reset behavior).
+Runs the React Native test suite with Jest and React Native Testing Library. Currently covers `ResultCard` (rendering states, accessibility, toxicity logic), `ErrorBoundary` (fallback UI and reset behavior), and `SavedPlantDetail` (modal rendering, close behavior, photo handling).
 
 ### Backend
 
@@ -104,13 +105,17 @@ EdiblePlantFinder/
 ├── components/
 │   ├── __tests__/
 │   │   ├── ResultCard.test.tsx
-│   │   └── ErrorBoundary.test.tsx
+│   │   ├── ErrorBoundary.test.tsx
+│   │   └── SavedPlantDetail.test.tsx
 │   ├── CameraScreen.tsx
 │   ├── ResultCard.tsx
 │   ├── ErrorBoundary.tsx
+│   ├── MyPlantsScreen.tsx     # List of saved identifications with thumbnails
+│   ├── SavedPlantDetail.tsx   # Modal for viewing a saved plant (photo + ResultCard)
 │   └── README.md              # Component documentation
 ├── services/
-│   └── plantId.ts             # API client for the backend
+│   ├── plantId.ts             # API client for the backend
+│   └── storage.ts             # Local persistence (AsyncStorage + expo-file-system modern API)
 ├── App.tsx                    # Main React Native entry point (TypeScript)
 ├── types.ts                   # Shared TypeScript interfaces
 ├── styles.ts                  # StyleSheet definitions
