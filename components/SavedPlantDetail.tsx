@@ -8,6 +8,7 @@ import {
   Modal,
   ScrollView,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { SavedIdentification } from '../services/storage';
 import { ResultCard } from './ResultCard';
 
@@ -60,9 +61,12 @@ export function SavedPlantDetail({ visible, item, onClose }: Props) {
             />
           )}
 
-          <View style={styles.cardContainer}>
+          <LinearGradient
+            colors={['rgba(17,17,17,0.92)', '#111111']}
+            style={styles.cardContainer}
+          >
             <ResultCard result={item.result} />
-          </View>
+          </LinearGradient>
 
           <Text style={styles.timestamp}>
             Saved on {new Date(item.timestamp).toLocaleString()}
@@ -125,6 +129,10 @@ const styles = StyleSheet.create({
   cardContainer: {
     marginTop: -20,
     paddingHorizontal: 16,
+    paddingTop: 24,
+    paddingBottom: 16,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
   },
   timestamp: {
     color: '#666',

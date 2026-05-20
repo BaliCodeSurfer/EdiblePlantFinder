@@ -4,6 +4,11 @@ import { SavedPlantDetail } from '../SavedPlantDetail';
 import { SavedIdentification } from '../../services/storage';
 import { PlantIdentificationResult } from '../../types';
 
+// Mock expo-linear-gradient for testing
+jest.mock('expo-linear-gradient', () => ({
+  LinearGradient: ({ children }: { children: React.ReactNode }) => children,
+}));
+
 function makeMockResult(): PlantIdentificationResult {
   return {
     classification: {
