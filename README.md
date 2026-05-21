@@ -31,9 +31,11 @@ This project showcases attention to motion, accessibility, and interaction quali
 
 ## Demo
 
-A short video walkthrough of the app is available here:
+- **Main app walkthrough** (identification flow, animations, accessibility):  
+  [Download demo video (84 MB)](https://github.com/BaliCodeSurfer/EdiblePlantFinder/releases/download/Demo/RPReplay_Final1778988151.MOV)
 
-[Download demo video (84 MB)](https://github.com/BaliCodeSurfer/EdiblePlantFinder/releases/download/Demo/RPReplay_Final1778988151.MOV)
+- **My Plants feature** (tab navigation, saving plants with photos, detail modal, delete):  
+  [Download My Plants demo](https://github.com/BaliCodeSurfer/EdiblePlantFinder/releases/download/Demo/My.Plants.demo.MOV)
 
 **Additional resources**
 - [Backend API documentation](https://plant-id-proxy.onrender.com/docs)
