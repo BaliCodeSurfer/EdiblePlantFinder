@@ -1,5 +1,7 @@
 # Edible Plant Finder
 
+**by Tim Lee** ([@BaliCodeSurfer](https://github.com/BaliCodeSurfer))
+
 A polished React Native experience for identifying wild plants and determining whether they are safe to eat. The app emphasizes smooth micro-interactions, thoughtful motion design, and robust accessibility to create a trustworthy, delightful interface for a safety-critical use case.
 
 ## UI & Interaction Highlights
@@ -13,7 +15,8 @@ A polished React Native experience for identifying wild plants and determining w
 - **Safety-first design**: a pragmatic toxicity classifier that distinguishes genuine danger warnings from "safe / non-toxic" descriptions returned by the underlying ML API
 - **Error boundary**: catches unhandled runtime errors and renders a friendly fallback screen rather than crashing — with error reporting hooks ready for Sentry/Datadog in production
 - **Frontend tests** using `@testing-library/react-native` covering rendering states, accessibility props, toxicity safety logic, ErrorBoundary behavior, and the new SavedPlantDetail modal
-- **"My Plants" history**: tab-based navigation with local persistence — save identifications (including the photo) using the modern `expo-file-system` File/Directory API + AsyncStorage. Past results open in a full-screen detail modal showing the original photo and complete ResultCard. Delete with confirmation.
+- **"My Plants" history**: tab-based navigation with local persistence — save identifications (including the photo) using the modern `expo-file-system` File/Directory API + AsyncStorage. Past results open in a polished iOS-style page-sheet modal featuring a frosted-glass header with blur effect, drag handle, subtle gradient behind the ResultCard, stronger shadows, and refined spacing. Delete with confirmation.
+- **Haptic feedback**: pleasant native success haptic on saving a plant to history, reinforcing the action with tactile feedback.
 
 The app is built end-to-end with a production-grade FastAPI backend that handles third-party ML API calls securely, rate limiting, retries with exponential backoff, and Dockerized deployment. This demonstrates not only strong UI craft but also the ability to deliver a complete, resilient product experience.
 
