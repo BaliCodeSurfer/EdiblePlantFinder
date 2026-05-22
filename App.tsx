@@ -72,11 +72,6 @@ export default function App() {
     setDetailVisible(true);
   };
 
-  const closeDetail = () => {
-    setDetailVisible(false);
-    setSelectedPlant(null);
-  };
-
   if (!permission) {
     return <View style={styles.container}><Text>Requesting camera permission...</Text></View>;
   }
