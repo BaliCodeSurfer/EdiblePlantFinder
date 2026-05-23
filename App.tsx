@@ -43,12 +43,13 @@ export default function App() {
   const isWide = width > 700;
 
   const {
-    resultAnim,
-    photoAnim,
     onAnalyzePressIn,
     onAnalyzePressOut,
     resultAnimatedStyle,
+    photoAnimatedStyle,
     analyzeButtonAnimatedStyle,
+    resetAnimations,
+    animateResultEntrance,
   } = useAppAnimations(photoUri, loading);
 
   const handleSaveToMyPlants = async () => {
@@ -111,7 +112,7 @@ export default function App() {
         return;
       }
       setResult(plantResult);
-      Animated.timing(resultAnim, { toValue: 1, duration: 1000, useNativeDriver: true }).start();
+      animateResultEntrance();
     } catch (error: any) {
       console.error('Full error:', error);
       Alert.alert('Analysis failed', error.message ?? 'Unknown error');
@@ -124,8 +125,7 @@ export default function App() {
     setPhotoUri(null);
     setBase64Image(null);
     setResult(null);
-    resultAnim.setValue(0);
-    photoAnim.setValue(0);
+    resetAnimations();
   };
 
   const toggleCameraFacing = () => {
@@ -153,10 +153,7 @@ export default function App() {
                   height: Math.min(height * 0.6, 650),
                   borderRadius: 20,
                 },
-                {
-                  opacity: photoAnim,
-                  transform: [{ scale: photoAnim.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) }],
-                },
+                photoAnimatedStyle,
               ]}
               resizeMode="contain"
               accessibilityRole="image"

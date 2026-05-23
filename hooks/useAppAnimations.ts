@@ -46,17 +46,36 @@ export function useAppAnimations(photoUri: string | null, loading: boolean) {
     transform: [{ translateY: resultAnim.interpolate({ inputRange: [0, 1], outputRange: [40, 0] }) }],
   };
 
+  const photoAnimatedStyle = {
+    opacity: photoAnim,
+    transform: [{ scale: photoAnim.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) }],
+  };
+
   const analyzeButtonAnimatedStyle = {
     transform: [{ scale: buttonScale }],
     opacity: loadingPulse,
   };
 
+  const resetAnimations = () => {
+    resultAnim.setValue(0);
+    photoAnim.setValue(0);
+  };
+
+  const animateResultEntrance = () => {
+    Animated.timing(resultAnim, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
+  };
+
   return {
-    resultAnim,
-    photoAnim,
     onAnalyzePressIn,
     onAnalyzePressOut,
     resultAnimatedStyle,
+    photoAnimatedStyle,
     analyzeButtonAnimatedStyle,
+    resetAnimations,
+    animateResultEntrance,
   };
 }
